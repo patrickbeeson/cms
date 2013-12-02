@@ -1,0 +1,93 @@
+{% extends "base_news.html" %}
+
+{% load generic_markup date categories image_utils cache %}
+
+{% block title %}Story archive{{ block.super }}{% endblock %}
+
+{% block meta_description %}All news stories from the Virginia Tech Carilion Research Institute.{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}news{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Story archive</h1>
+	
+<ul>
+{% cache 500 story_list page_obj %}
+{% for story in story_list %}
+	{% if story.tease_photo %}
+	<li class="tease">
+		<h2>
+			<a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">
+				<img src="{{ story.tease_photo.photo|crop:"150x150" }}" alt="{{ story.tease_photo.alt_text }}">
+				{{ story.headline }}
+			</a>
+		</h2>
+		<p class="content_meta">{% comment %}By {% if story.author %}<a href="mailto:{{ story.author.email }}">{{ story.author.get_full_name }}</a>{% else %}{{ story.one_off_byline }}{% endif %}, {% endcomment %}Published {{ story.pub_date|date:"N j, Y" }} at {{ story.pub_date|date:"P" }}{% if story.updated %}<span class="updated">, updated {{ story.updated }}</span>{% endif %}</p>
+		<p class="summary">{{ story.summary|truncatewords:"30" }}</p>
+	</li>
+	{% else %}
+	<li class="no_tease">
+		<h2>
+			<a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">
+			{{ story.headline }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ story.pub_date|date:"N j, Y" }},<br>{{ story.pub_date|date:"P" }}{% if story.updated %}<span class="updated">, updated {{ story.updated }}</span>{% endif %}</p>
+	</li>
+	{% endif %}
+{% endfor %}
+{% endcache %}
+</ul>	
+
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; Older stories</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Newer stories &raquo;</a>{% endif %}</p>
+
+	<div id="featured_items">
+		<h3>Featured content</h3>
+		{% include "includes/featured_content.html" %}
+	</div>
+
+
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<h2>Date-based archives</h2>
+
+<h3>Year</h3>
+{% get_story_year_list as year_list %}
+<ul>
+{% cache 500 story_list_year %}
+{% for year in year_list %}
+	<li><a href="{{ year|date:"Y"|lower }}/">{{ year|date:"Y" }}</a></li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+<h3>Month</h3>
+{% get_story_month_list as month_list %}
+<ul>
+{% cache 500 story_list_month %}
+{% for month in month_list %}
+	<li><a href="{{ month|date:"Y/M"|lower }}/">{{ month|date:"F Y" }}</a></li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+<h2>Story categories</h2>
+<p>Browse stories by category:</p>
+<ul>
+{% cache 500 story_list_categories %}
+{% get_category_list as category_list %}
+{% for category in category_list %}
+<li><a href="{{ category.get_absolute_url }}" title="{{ category.title }}">{{ category.title }}</a></li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+<h2>RSS</h2>
+<p class="rss"><a href="/feeds/news/" title="RSS feed for news stories">Subscribe to the story feed</a></p>
+
+{% endblock %}

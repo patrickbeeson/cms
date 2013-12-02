@@ -1,0 +1,42 @@
+{% extends "base_employees.html" %}
+
+{% load cache generic_markup truncate %}
+
+{% block title %}Publications for {{ primary_author.first_name }} {{ primary_author.last_name }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}All publications for {{ primary_author.first_name }} {{ primary_author.last_name }}{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}employees{% endblock %}
+
+{% block primary_content %}
+
+<div id="content_list" class="publications">
+	
+	<h1>Publications for {{ primary_author.first_name }} {{ primary_author.last_name }}</h1>
+		
+	<ul>
+	{% cache 500 publications_for_employee primary_author.slug page_obj %}
+	{% for publication in publication_list|dictsortreversed:"journal_pub_date" %}
+	{% ifequal publication.publication_type 1 %}
+		<li>{{ publication.authors }}. ({{ publication.journal_pub_date|date:"Y" }}). {% if publication.external_link %}<a href="{{ publication.external_link }}">{{ publication.article_title }}</a>{% else %}{{ publication.article_title }}{% endif %}. In {{ publication.editors }}(Eds.). {{ publication.journal_name }}. {% if publication.journal_volume %}Vol. {{ publication.journal_volume }}{% endif %} (pp. {{ publication.journal_page_range }}) {{ publication.location_of_publication }}: {{ publication.publisher }}. {% if publication.downloadable_version %}<a href="{{ STATIC_URL }}{{ publication.downloadable_version.document }}">Download this chapter</a>{% endif %}</li>
+	{% else %}
+		<li>{{ publication.authors }}. ({{ publication.journal_pub_date|date:"Y" }}). {% if publication.external_link %}<a href="{{ publication.external_link }}">{{ publication.article_title }}</a>{% else %}{{ publication.article_title }}{% endif %}. {{ publication.journal_name }}{% if publication.journal_volume %}, {{ publication.journal_volume }}{% endif %}{% if publication.journal_issue %}({{ publication.journal_issue }}){% endif %}{% if publication.journal_page_range %}:{{ publication.journal_page_range }}{% endif %}. {% if publication.downloadable_version %}<a href="{{ STATIC_URL }}{{ publication.downloadable_version.document }}">Download this article</a>{% endif %}</li>
+	{% endifequal %}
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; Older publications</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Newer publications &raquo;</a>{% endif %}</p>
+	
+</div>
+
+{% endblock %}
+
+{% block secondary_content %}
+<h2>More about {{ primary_author.first_name }} {{ primary_author.last_name }}</h2>
+<p><a href="{{ primary_author.get_absolute_url }}">View {{ primary_author.first_name }} {{ primary_author.last_name }}'s employee profile</a></p> 
+{% endblock %}

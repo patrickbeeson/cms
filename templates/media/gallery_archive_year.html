@@ -1,0 +1,49 @@
+{% extends "base_media.html" %}
+
+{% load image_utils cache %}
+
+{% block title %}Galleries for {{ year }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}Galleries for {{ year }} from the Virginia Tech Carilion Research Institute.{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list_date{% endblock %}
+
+{% block date_type %} year{% endblock %}
+
+{% block app_type %}gallery{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Galleries for {{ year }}</h1>
+
+	{% regroup gallery_list by created|date:"F" as month_list %}
+	<ul>
+	{% cache 500 gallery_list_year year %}
+	{% for month in month_list %}
+    	<li>
+    		<h3 class="month_grouper">{{ month.grouper }}</h3>
+    		<ul>
+        	{% for gallery in month.list %}
+				<li class="tease">
+					<h2>
+						<a href="{{ gallery.get_absolute_url }}" title="{{ gallery.title }}">
+						{% for photo in gallery.photos.all|slice:"1" %}
+							<img src="{{ photo.photo|crop:"150x150" }}" alt_text="{{ photo.alt_text }}">
+						{% endfor %}
+							{{ gallery.title }}
+						</a>
+					</h2>
+					<p class="content_meta">Created {{ gallery.created|date:"N j, Y" }} at {{ gallery.created|date:"P" }}</p>
+					<p class="summary">{{ gallery.description|truncatewords:"30" }}</p>
+				</li>
+        	{% endfor %}
+    		</ul>
+    	</li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+</div>
+{% endblock %}

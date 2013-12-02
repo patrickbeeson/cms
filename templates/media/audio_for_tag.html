@@ -1,0 +1,50 @@
+{% extends "base_media.html" %}
+
+{% load generic_markup image_utils cache %}
+
+{% block title %}Audio relating to {{ tag.name }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}Audio relating to {{ tag.name }}{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}audio{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Audio relating to '{{ tag.name }}'</h1>
+
+	<ul>
+	{% cache 500 audio_by_tag tag.name %}
+	{% for audio in object_list %}
+	{% if audio.thumbnail %}
+	<li class="tease">
+		<h2>
+			<a href="{{ audio.get_absolute_url }}" title="{{ audio.title }}">
+				<img src="{{ audio.thumbnail|crop:"150x150" }}" alt_text="{{ audio.thumbnail_alt_text }}">
+				{{ audio.title }}
+			</a>
+		</h2>
+		<p class="content_meta">By {% if audio.producer %}<a href="mailto:{{ audio.producer.email }}">{{ audio.producer.get_full_name }}</a>{% else %}{{ audio.one_off_producer }}{% endif %}, published {{ audio.uploaded|date:"N j, Y" }} at {{ audio.uploaded|date:"P" }}</p>
+		<p class="summary">{{ audio.description|truncatewords:"30" }}</p>
+	</li>
+	{% else %}
+	<li class="no_tease">
+		<h2>
+			<a href="{{ audio.get_absolute_url }}" title="{{ audio.title }}">
+			{{ audio.title }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ audio.uploaded|date:"N j, Y" }},<br>{{ audio.uploaded|date:"P" }}</p>
+	</li>
+	{% endif %}
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; Older stories</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Newer events &raquo;</a>{% endif %}</p>
+
+</div>
+{% endblock %}

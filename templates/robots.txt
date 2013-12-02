@@ -1,0 +1,4 @@
+# /robots.txt file for http://research.vtc.vt.edu
+# Contact pbeeson@vtc.vt.edu
+
+User-agent: *

@@ -1,0 +1,75 @@
+{% extends "base_events.html" %}
+
+{% load generic_markup image_utils cache %}
+
+{% block title %}Events for {{ eventtype.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{% if eventtype.description %}{{ eventtype.description }}{% else %}Events for {{ eventtype.title }}.{% endif %}{% endblock %}
+
+{% block feeds %}<link rel="alternate" href="/feeds/eventtypes/{{ eventtype.slug }}/"> {% endblock %}
+
+{% block view_type %}list eventtype_dvss{% endblock %}
+
+{% block app_type %}events{% endblock %}
+
+{% block primary_content %}
+
+<div id="content_list">
+	<h1>{{ eventtype.title }}</h1>
+
+	{% if eventtype.description %}{{ eventtype.description|apply_markup:"markdown" }}{% endif %}
+	
+	<p id="series_schedule"><a href="">Download a PDF of the Distinguished Visiting Scholars Series for Fall 2011 through Spring 2012</a></p>
+
+	{% if eventtype.academic_event_set %}
+	{# if eventtype.current_event_set #}
+	{% regroup eventtype.academic_event_set|dictsort:"event_date" by speaker as speaker_list %}	
+	{# regroup eventtype.current_event_set|dictsort:"event_date" by speaker as speaker_list #}
+	<ul id="seminar_list">
+	{% cache 500 event_by_type eventtype.title %}
+	{% for speaker in speaker_list %}
+	<li>
+
+		{% for event in speaker.list %}
+
+		{% ifequal forloop.counter 1 %}
+		<div class="speaker_meta">
+			<img src="{{ event.speaker_mugshot|crop:"150x150" }}" alt_text="{{ event.name }}">
+			<h2>{% if event.speaker_website %}<a href="{{ event.speaker_website }}">{{ event.speaker }}</a>{% else %}{{ event.speaker }}{% endif %}</h2>
+			<p><i>{{ event.speaker_title }}</i></p>
+		</div>
+
+		{% endifequal %}
+		<div class="seminar">
+			<h2><a href="{{ event.get_absolute_url }}" title="{{ event.name }}">{{ event.name }}</a></h2>
+			<p class="content_meta">{{ event.get_audience_type_display }}{% ifequal event.audience_type 2 %} seminar{% else %} lecture{% endifequal %} held {{ event.event_date|date:"N jS" }}, {% if event.is_all_day %}All day{% else %}{{ event.start_time }} to {{ event.finish_time }}{% endif %} at {{ event.location }} {% if event.show_archived_webcast %}(<a href="{{ event.get_absolute_url }}" class="archive_webcast_promo">Watch a webcast</a>){% endif %}</p>
+		</div>
+
+		{% endfor %}
+
+	</li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; Older events</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Newer events &raquo;</a>{% endif %}</p>
+
+	{% else %}
+	<p><em>There are no upcoming events for this series.</em></p>
+	{% endif %}
+
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+
+<h2>Past seminars</h2>
+<p><a href="/events/distinguished-visiting-scholars-series/2010/" title="2010 Distinguished Visiting Scholars Series">2010 Distinguished Visiting Scholars Series</a></p>
+
+<h2>Press mentions</h2>
+<ul>
+</ul>
+
+<h2>RSS</h2>
+<p class="rss"><a href="/feeds/eventtypes/{{ eventtype.slug }}/" title="RSS feed for {{ eventtype.title }}">Subscribe to a feed for events of this type</a></p>
+{% endblock %}

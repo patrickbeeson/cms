@@ -1,0 +1,288 @@
+{% extends "base_news.html" %}
+
+{% load tagging_tags thumbnail generic_markup shorturl comparison cache %}
+
+{% block title %}{{ story.headline }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ story.summary|striptags }}{% endblock %}
+
+{% block revcanonical %}
+	{% revcanonical object %}
+{% endblock %}
+
+{% block facebook_meta_data %}
+<meta property="og:title" content="{{ story.headline }}"> 
+<meta property="og:site_name" content="http://research.vtc.vt.edu"> 
+{% if story.photo %}<meta property="og:image" content="{{ STATIC_URL }}{{ story.photo.photo }}">{% endif %} 
+<meta property="og:type" content="article"> 
+<meta property="og:url" content="http://research.vtc.vt.edu{{ story.get_absolute_url }}"> 
+<meta property="og:description" content="{{ story.summary|striptags }}"> 
+<meta property="fb:admins" content="194685760573428, 27403640"> 
+{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}news{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script src="{{ STATIC_URL }}js/print.js"></script>
+<script src="http://apis.google.com/js/plusone.js"></script>
+{% endblock %}
+
+{% block primary_content %}
+	
+{% include "includes/content_tools.html" %}
+
+<div id="story_{{ story.id }}" class="content_body">
+	<h1>{{ story.headline }}</h1>
+	<h3 id="subhead">{{ story.subhead }}</h3>
+		
+	{% if story.photo %}
+	<div id="lead_photo" class="{{ story.photo.get_photo_orientation }}">
+		{% if_less story.photo.width story.photo.height %}
+		{% ifequal story.photo.is_aggregated 2 %}<a href="{{ story.photo.get_absolute_url }}"><img src="{{ story.photo.photo|thumbnail:"310w" }}" alt="{{ story.photo.alt_text }}"></a>{% else %}<img src="{{ story.photo.photo|thumbnail:"310w" }}" alt="{{ story.photo.alt_text }}">{% endifequal %}
+		{% else %}
+		{% if_greater_or_equal story.photo.width 630 %}
+		{% if story.photo.is_aggregated %}<a href="{{ story.photo.get_absolute_url }}"><img src="{{ story.photo.photo|thumbnail:"630w" }}" alt="{{ story.photo.alt_text }}"></a>{% else %}<img src="{{ story.photo.photo|thumbnail:"630w" }}" alt="{{ story.photo.alt_text }}">{% endif %}
+		{% endif_greater_or_equal %}
+		{% endif_less %}
+			{% if story.photo.photographer or story.photo.one_off_photographer %}<p id="photographer">{{ story.photo.photographer.get_full_name }}{{ story.photo.one_off_photographer }}{% endif %}</p>
+			{% if story.photo.is_aggregated %}<p id="caption">{{ story.photo.caption }} {% if story.photo.external_url %}(<a href="{{ story.photo.external_url }}">CREDIT</a>){% endif %}</p>{% endif %}
+	</div>
+	{% endif %}
+	
+	{% if story.author or story.one_off_byline %}<p id="byline">By {% if story.author %}<a href="mailto:{{ story.author.email }}">{{ story.author.get_full_name }}</a>{% else %}{{ story.one_off_byline|urlize }}{% endif %}</p>{% endif %}
+	<p id="pub_date">Published: {{ story.pub_date }}{% if story.updated %}<span id="updated">, Updated: {{ story.updated }}</span>{% endif %}</p>
+	
+	<div id="story_body">
+	
+		<span id="dateline">{{ story.dateline }} --</span>
+		{{ story.body_html|safe }}
+	
+	</div>
+	{% comment %}
+	<div id="byline_details">
+		<h3>Media contact</h3>
+		{% if story.author or story.one_off_byline %}
+		<ul>
+			<li>{% if story.author %}{{ story.author.get_full_name }}{% else %}{{ story.one_off_byline|urlize }}{% endif %}</li>
+			{% if story.author %}<li><a href="mailto:{{ story.author.email }}">{{ story.author.email }}</a></li>{% endif %}
+			{% ifequal story.author.id 5 %}<li>540-526-2027</li>{% endifequal %}
+		</ul>
+		{% else %}
+		<ul>
+			<li>Paula Byron</li>
+			<li><a href="mailto:paulabyron@vtc.vt.edu">paulabyron@vtc.vt.edu</a></li>
+			<li>540-526-2027</li>
+		</ul>
+		{% endif %}
+	</div>
+	{% endcomment %}
+	{% if story.media_contact or story.one_off_media_contact %}
+	<div id="byline_details">
+		<h3>Media contact</h3>
+		<p>
+		{% if story.media_contact %}
+			{% for employee in story.media_contact.employee_set.all %}
+			{{ story.media_contact.get_full_name }}<br>
+			<a href="mailto:{{ employee.email }}">{{ employee.email }}</a><br>
+			{{ employee.office_phone_number }}
+			{% endfor %}
+		</p>
+		{% else %}				
+		<p>{{ story.one_off_media_contact|urlize }}</p>
+		{% endif %}
+	</div>
+	{% endif %}	
+</div>
+
+{% include "includes/content_tools.html" %}
+
+
+<div id="more_related">
+
+	<div class="more_related_content">
+		<h2>Related stories</h2>
+
+		{% if story.related_story_set.count %}
+		<ul id="related_stories">
+		{% cache 500 story_detail_related story.headline %}	
+		{% for related_story in story.related_story_set.all %}
+    		<li><a href="{{ related_story.get_absolute_url }}" title="{{ related_story.headline }}">{{ related_story.headline }}</a></li>
+		{% endfor %}
+		{% endcache %}
+		</ul>
+		{% else %}
+		<p>There are no stories related to this story.</p>
+		{% endif %}
+	</div>
+	
+	<div class="more_related_content">
+		<h2>Related topics</h2>
+		{% if story.tags %}
+		{% tags_for_object story as tag_list %}
+		{% cache 500 story_detail_tags story.headline %}
+		<ul id="related_tags">
+		{% for tag in tag_list|slice:"5" %}
+			<li><a href="/news/{{ tag.name }}/" title="{{ tag.name }}">{{ tag.name }}</a></li>
+		{% endfor %}
+		{% endcache %}
+		</ul>
+		{% else %}
+		<p>There are no topics specified for this story.</p>
+		{% endif %}
+	</div>
+</div>
+
+<div id="content_categories">
+	<h3>Categor{{ story.category.count|pluralize:"y,ies" }}:</h3>
+	<ul>
+	{% cache 500 story_detail_categories story.headline %}
+	{% for category in story.categories.all %}
+		<li><a href="{{ category.get_absolute_url }}">{{ category.title }}</a></li>
+	{% if forloop.last %}{% else %}
+	{% ifequal forloop.revcounter0 1 %}and {% else %}, {% endifequal %}
+	{% endif %}
+	{% endfor %}
+	{% endcache %}
+	</ul>
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+		<div id="related_content">
+		{% cache 500 story_detail_related_content story.headline %}
+		{% if story.faculty_profiled.count %}
+		<h2>Faculty profiled in this story</h2>
+		<ul id="faculty_profiled">
+		{% for employee in story.faculty_profiled.all %}
+			<li><a href="{{ employee.get_absolute_url }}" title="{{ employee.first_name }} {{ employee.last_name }}">{{ employee.first_name }} {{ employee.last_name }}</a></li>
+		{% endfor %}
+		</ul>
+		{% endif %}
+	
+		{% if story.related_videos.count %}
+		
+		<h2>Related video{{ story.related_videos.count|pluralize }}</h2>
+		
+		<ul id="related_videos">
+		{% for video in story.related_videos.all %}
+			<li><a href="{{ video.get_absolute_url }}" title="{{ video.title }}">{{ video.title }}</a></li>
+		{% endfor %}
+		</ul>
+		
+		{% endif %}
+		{% if story.related_audio.count %}
+		
+		
+		<h2>Related audio</h2>
+		
+		<ul id="related_audio">
+		{% for audio in story.related_audio.all %}
+			<li><a href="{{ audio.get_absolute_url }}" title="{{ audio.title }}">{{ audio.title }}</a></li>
+		{% endfor %}
+		</ul>
+		
+		{% endif %}
+		{% if story.related_photos.count %}
+		
+		
+		<h2>Related photo{{ story.related_photos.count|pluralize }}</h2>
+		
+		<ul id="related_photos">
+		{% for photo in story.related_photos.all %}
+			<li><a href="{{ photo.get_absolute_url }}" title="{{ photo.title }}">{{ photo.title }}</a></li>
+		{% endfor %}
+		</ul>
+		
+		{% endif %}
+		{% if story.related_galleries.count %}
+		
+		
+		<h2>Related gallery{{ story.related_galleries.count|pluralize }}</h2>
+		
+		<ul id="related_galleries">
+		{% for gallery in story.related_galleries.all %}
+			<li><a href="{{ gallery.get_absolute_url }}" title="{{ gallery.title }}">{{ gallery.title }}</a></li>
+		{% endfor %}
+		</ul>
+		
+		{% endif %}
+		{% if story.related_events.count %}
+		
+		
+		<h2>Related event{{ story.related_events.count|pluralize }}</h2>
+		
+		<ul id="related_events">
+		{% for event in story.related_events.all %}
+			<li>
+			{% if event.show_webcast %}<span class="live_webcast">Live webcast now!</span>{% endif %}
+				<h3><a href="{{ event.get_absolute_url }}" title="{{ event.name }}">{{ event.name }}</a></h3>
+				<p class="event_meta">{{ event.event_date|date:"N jS" }} at {{ event.start_time }} at {{ event.location }} -- Speaker: {{ event.speaker }}</p>
+			</li>
+		{% endfor %}
+		</ul>
+		
+		{% endif %}
+		{% if story.related_documents.count %}
+		
+		
+		<h2>Related document{{ story.related_documents.count|pluralize }}</h2>
+		
+		<ul id="related_documents">
+		{% for document in story.related_documents.all %}
+			<li><a href="{{ STATIC_URL }}{{ document.document }}" title="{{ document.title }}">{{ document.title }}</a></li>
+		{% endfor %}
+		</ul>
+		
+		{% endif %}
+		{% if story.related_publications.count %}
+		
+		
+		<h2>Related publication{{ story.related_publications.count|pluralize }}</h2>
+		
+		<ul id="related_publications">
+		{% for publication in story.related_publications.all %}
+			<li><a href="{{ publication.external_link }}" title="{{ publication.article_title }}">{{ publication.article_title }}</a></li>
+		{% endfor %}
+		</ul>
+		
+		{% endif %}
+		{% if story.related_links.count %}
+		
+		
+		<h2>Related link{{ story.related_links.count|pluralize }}</h2>
+		
+		<ul id="related_links">
+		{% for related_link in story.related_links.all %}
+			<li><a href="{{ related_link.url }}" title="{{ related_link.title }}">{{ related_link.title }}</a></li>
+		{% endfor %}
+		</ul>
+		
+		{% endif %}
+		{% endcache %}
+	</div>
+{% endblock %}
+
+{% block tertiary_content %}
+
+{% endblock %}
+
+{% block in_body_js %}
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({status: true, cookie: true,
+             xfbml: true});
+  };
+  (function() {
+    var e = document.createElement('script'); e.async = true;
+    e.src = document.location.protocol +
+      '//connect.facebook.net/en_US/all.js';
+    document.getElementById('fb-root').appendChild(e);
+  }());
+</script>
+{% endblock %}

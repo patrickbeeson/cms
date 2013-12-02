@@ -1,0 +1,118 @@
+{% extends "base_media.html" %}
+
+{% load generic_markup thumbnail tagging_tags shorturl comparison cache %}
+
+{% block title %}{{ photo.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ photo.caption|striptags }}{% endblock %}
+
+{% block revcanonical %}
+	{% revcanonical object %}
+{% endblock %}
+
+{% block facebook_meta_data %}
+<meta property="og:title" content="{{ photo.title }}"> 
+<meta property="og:site_name" content="http://research.vtc.vt.edu"> 
+<meta property="og:image" content="{{ STATIC_URL }}{{ photo.photo }}"> 
+<meta property="og:type" content="article"> 
+<meta property="og:url" content="http://research.vtc.vt.edu{{ photo.get_absolute_url }}"> 
+<meta property="og:description" content="{{ photo.caption|striptags }}"> 
+<meta property="fb:admins" content="194685760573428, 27403640"> 
+{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}photo{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script src="http://apis.google.com/js/plusone.js"></script>
+{% endblock %}
+
+{% block primary_content %}
+{% include "includes/content_tools.html" %}
+
+<div id="photo_{{ photo.id }}" class="content_body">
+	<h1>{{ photo.title }}</h1>
+	
+	<div id="lead_photo" class="{{ photo.get_photo_orientation }}">
+		{% if_less photo.width photo.height %}
+		<img src="{{ photo.photo|thumbnail:"310w" }}" alt="{{ photo.alt_text }}">
+		{% else %}
+		<img src="{{ photo.photo|thumbnail:"630w" }}" alt="{{ photo.alt_text }}">
+		{% endif_less %}
+		<p id="photographer">By {% if photo.photographer %}<a href="mailto:{{ photo.photographer.email }}">{{ photo.photographer.get_full_name }}</a>{% else %}{{ photo.one_off_photographer }}{% endif %}</p>
+	</div>
+	
+	{{ photo.caption|apply_markup:"markdown" }}
+	
+</div>
+
+{% include "includes/content_tools.html" %}
+
+<div id="more_related">
+	<div class="more_related_content">
+	<h2>Related photos</h2>
+	{% if photo.related_photo_set.count %}
+	<ul id="related_photos">
+	{% cache 500 photo_detail_related photo.title %}	
+	{% for related_photo in photo.related_photo_set.all %}
+    	<li><a href="{{ related_photo.get_absolute_url }}" title="{{ related_photo.title }}">{{ related_photo.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	{% else %}
+	<p>There are no photos related to this photo.</p>
+	{% endif %}
+	</div>
+	
+	<div class="more_related_content">
+	<h2>Related topics</h2>
+	{% if photo.tags %}
+	{% tags_for_object photo as tag_list %}
+	<ul id="related_tags">
+	{% cache 500 photo_detail_related_tags photo.title %}
+	{% for tag in tag_list|slice:"5" %}
+		<li><a href="/photos/tags/{{ tag.name }}/" title="{{ tag.name }}">{{ tag.name }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	{% else %}
+	<p>There are no topics specified for this photo.</p>
+	{% endif %}
+	</div>
+</div>
+
+<div id="content_categories">
+	<h3>Categor{{ photo.category.count|pluralize:"y,ies" }}:</h3>
+	<ul>
+	{% cache 500 photo_detail_categories photo.title %}
+	{% for category in photo.category.all %}
+		<li><a href="{{ category.get_absolute_url }}">{{ category.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+</div>
+
+{% endblock %}
+
+{% block secondary_content %}
+	{% if photo.live_story_set %}
+	<div id="related_content">
+		<h2>Related stories</h2>
+		<ul class="related_item_list">
+		{% cache 500 photo_detail_related_stories photo.title %}
+		{% for story in photo.live_story_set %}
+			<li><a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">{{ story.headline }}</a></li>
+		{% endfor %}
+		{% endcache %}
+		</ul>
+	</div>
+	{% endif %}
+{% endblock %}
+
+{% block in_body_js %}
+{% include "includes/facebook_js.html" %}
+{% endblock %}

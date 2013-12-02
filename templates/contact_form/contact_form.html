@@ -1,0 +1,55 @@
+{% extends "base_contact.html" %}
+
+{% block  title %}Contact us{{ block.super }}{% endblock %}
+
+{% block meta_description %}Contact{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}contact{% endblock %}
+
+{% block primary_content %}
+<div class="content_body">
+	<h1>Contact</h1>
+	
+	<p>Please use this form to send a general message. You can also contact a specific person using our <a href="/employees/">employee section</a>.</p>
+	
+	<form method="post" action="" id="contactform">
+		{% csrf_token %}
+		<fieldset>
+			<label for="id_name">Your name</label>
+			<input id="id_name" type="text" class="required" name="name" maxlength="100" required>
+		</fieldset>
+		
+		<fieldset>
+			<label for="id_email">Your email</label>
+			<input id="id_email" type="email" class="required" name="email" maxlength="200" required>
+		</fieldset>
+		
+		<fieldset>
+			<label for="id_body">Your message</label>
+			<textarea id="id_body" rows="10" cols="40" name="body" class="required"></textarea>
+		</fieldset>
+		
+		<fieldset>
+			<input type="submit" value="Send message">
+		</fieldset>
+	</form>
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<h2>Mailing address</h2>
+<p></p>
+
+<h2>Phone and fax numbers</h2>
+<ul>
+	<li><b>Phone</b>: </li>
+	<li><b>Fax</b>: </li>
+</ul>
+
+<h2>Media inquiries</h2>
+<p>Please contact Director of Communications for all media inquiries.</p>
+
+{% endblock %}
+

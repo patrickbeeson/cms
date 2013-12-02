@@ -1,0 +1,88 @@
+{% extends "base_topics.html" %}
+
+{% load generic_markup cache %}
+
+{% block title %}{{ topic.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ topic.description|striptags }}{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}topics{% endblock %}
+
+{% block primary_content %}
+<div id="topic_{{ topic.id }}" class="content_body">
+	<h1>{{ topic.title }}</h1>
+
+	{{ topic.description|apply_markup:"markdown" }}
+	
+	<div id="related_content">
+	{% cache 500 topic_detail_related_content topic.title %}
+	{% if topic.live_story_set %}
+		<h2>Related stories</h2>
+		<ul class="related_item_list">
+		{% for story in topic.live_story_set %}
+			<li><a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">{{ story.headline }}</a></li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if topic.documents.count %}
+		<h2>Related documents</h2>
+		<ul class="related_item_list">
+		{% for document in topic.documents.all %}
+			<li><a href="{{ document.get_absolute_url }}" title="{{ document.title }}">{{ document.title }}</a></li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if topic.audio.count %}
+		<h2>Related audio</h2>
+		<ul class="related_item_list">
+		{% for audio in topic.live_audio_set %}
+			<li><a href="{{ audio.get_absolute_url }}" title="{{ audio.title }}">{{ audio.title }}</a></li>
+		{% endfor %}
+		</ul>
+	{% endif %}	
+
+	{% if topic.galleries.count %}
+		<h2>Related galleries</h2>
+		<ul class="related_item_list">
+		{% for gallery in topic.live_gallery_set %}
+			<li><a href="{{ gallery.get_absolute_url }}" title="{{ gallery.title }}">{{ gallery.title }}</a></li>
+		{% endfor %}
+		</ul>
+	{% endif %}	
+
+	{% if topic.photos.count %}
+		<h2>Related photos</h2>
+		<ul class="related_item_list">
+		{% for photo in topic.live_photo_set %}
+			<li><a href="{{ photo.get_absolute_url }}" title="{{ photo.title }}">{{ photo.title }}</a></li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if topic.videos.count %}
+		<h2>Related video</h2>
+		<ul class="related_item_list">
+		{% for video in topic.live_video_set %}
+			<li><a href="{{ video.get_absolute_url }}" title="{{ video.title }}">{{ video.title }}</a></li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if topic.active_faculty_set %}
+		<h2>Related faculty</h2>
+		<ul class="related_item_list">
+		{% for employee in topic.active_faculty_set %}
+			<li><a href="{{ employee.get_absolute_url }}" title="{{ employee.first_name }}">{{ employee.first_name }}</a></li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+	{% endcache %}
+	</div>
+</div>
+{% endblock %}

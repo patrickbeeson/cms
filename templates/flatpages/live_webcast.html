@@ -1,0 +1,42 @@
+{% extends "base_flatpages.html" %}
+
+{% load generic_markup events comparison %}
+
+{% block title %}{{ flatpage.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ flatpage.title }}{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}flatpages{% endblock %}
+
+{% block primary_content %}
+<h1>{{ flatpage.title }}</h1>
+
+<div id="content_body">
+	<object type="application/x-shockwave-flash" height="354" width="630" id="live_embed_player_flash" data="" bgcolor="#000000"><param name="allowFullScreen" value="true" /><param name="allowScriptAccess" value="always" /><param name="allowNetworking" value="all" /><param name="movie" value="http://www.justin.tv/widgets/live_embed_player.swf" /><param name="flashvars" value="hostname=www.justin.tv&channel=vtcri&auto_play=true&start_volume=25" /></object> 
+
+	{{ flatpage.content|apply_markup:"markdown" }}
+
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<div id="upcoming_events">
+	<h2>Upcoming live webcast events</h2>
+	{% get_upcoming_livewebcast_events %}
+	<ul>
+	{% for event in upcoming_livewebcast_events|slice:"5" %}
+		<li>
+			<h3><a href="{{ event.get_absolute_url }}" title="{{ event.name }}">{{ event.name }}</a></h3>
+			<p class="event_meta">{{ event.event_date|date:"N j" }} at {{ event.start_time }} at {{ event.location }} -- Speaker: {{ event.speaker }}</p>
+		</li>
+	{% endfor %}
+	</ul>
+	{% if_greater upcoming_livewebcast_events.count 5 %}
+	<p style="padding-left: 0px;"><a href="/events/">&laquo; View more upcoming events</a></p>
+	{% endif_greater %}
+</div>
+{% endblock %}

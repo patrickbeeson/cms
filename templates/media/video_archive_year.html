@@ -1,0 +1,58 @@
+{% extends "base_media.html" %}
+
+{% load image_utils cache %}
+
+{% block title %}Videos for {{ year }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}Videos for {{ year }} from the Virginia Tech Carilion Research Institute.{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list_date{% endblock %}
+
+{% block date_type %} year{% endblock %}
+
+{% block app_type %}video{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Videos for {{ year }}</h1>
+
+	{% regroup video_list by created|date:"F" as month_list %}
+	<ul>
+	{% cache 500 video_list_year year %}
+	{% for month in month_list %}
+    	<li>
+    		<h3 class="month_grouper">{{ month.grouper }}</h3>
+    		<ul>
+        	{% for video in month.list %}
+	{% if video.thumbnail %}
+	<li class="tease">
+		<h2>
+			<a href="{{ video.get_absolute_url }}" title="{{ video.title }}">
+				<img src="{{ video.thumbnail|crop:"150x150" }}" alt_text="{{ video.thumbnail_alt_text }}">
+				{{ video.title }}
+			</a>
+		</h2>
+		<p class="content_meta">By {% if video.videographer %}<a href="mailto:{{ video.videographer.email }}">{{ video.videographer.get_full_name }}</a>{% else %}{{ video.one_off_videographer }}{% endif %}, published {{ video.created|date:"N j, Y" }} at {{ video.created|date:"P" }}</p>
+		<p class="summary">{{ video.caption|truncatewords:"30" }}</p>
+	</li>
+	{% else %}
+	<li class="no_tease">
+		<h2>
+			<a href="{{ video.get_absolute_url }}" title="{{ video.title }}">
+			{{ video.title }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ video.created|date:"N nS" }},<br>{{ video.created|date:"P" }}</p>
+	</li>
+	{% endif %}
+        	{% endfor %}
+    		</ul>
+    	</li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+</div>
+{% endblock %}

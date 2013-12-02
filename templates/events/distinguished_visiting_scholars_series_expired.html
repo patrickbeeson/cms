@@ -1,0 +1,71 @@
+{% extends "base_events.html" %}
+
+{% load generic_markup image_utils cache events %}
+
+{% block title %}{{ year }} Distinguished Visiting Scholars Series{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ year }} Distinguished Visiting Scholars Series{% endblock %}
+
+{% block view_type %}list eventtype_dvss{% endblock %}
+
+{% block app_type %}events{% endblock %}
+
+{% block primary_content %}
+
+<div id="content_list">
+	<h1>{{ year }} Distinguished Visiting Scholars Series</h1>
+
+	<p><a href="/events/distinguished-visiting-scholars-series/">The Distinguished Visiting Scholars Series</a> brings nationally and internationally renowned experts to our city.</p>
+
+	{% if event_list %}
+	{% regroup event_list|dictsort:"event_date" by speaker as speaker_list %}
+	<ul id="seminar_list">
+	{% cache 500 expired_dvss_event_list year %}
+	{% for speaker in speaker_list %}
+	<li>
+
+		{% for event in speaker.list %}
+
+		{% ifequal forloop.counter 1 %}
+		<div class="speaker_meta">
+			<img src="{{ event.speaker_mugshot|crop:"150x150" }}" alt_text="{{ event.name }}">
+			<h2>{% if event.speaker_website %}<a href="{{ event.speaker_website }}">{{ event.speaker }}</a>{% else %}{{ event.speaker }}{% endif %}</h2>
+			<p><i>{{ event.speaker_title }}</i></p>
+		</div>
+
+		{% endifequal %}
+		<div class="seminar">
+			<h2><a href="{{ event.get_absolute_url }}" title="{{ event.name }}">{{ event.name }}</a></h2>
+			<p class="content_meta">{{ event.get_audience_type_display }}{% ifequal event.audience_type 2 %} seminar{% else %} lecture{% endifequal %} held {{ event.event_date|date:"N jS" }}, {% if event.is_all_day %}All day{% else %}{{ event.start_time }} to {{ event.finish_time }}{% endif %} at {{ event.location }}</p>
+		</div>
+
+		{% endfor %}
+
+	</li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	{% else %}
+	<p><em>There are no events for this series in {{ year }}.</em></p>
+	{% endif %}
+
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<div id="upcoming_events">
+	<h2>Upcoming seminars</h2>
+	{% get_upcoming_events_for_eventtype distinguished-visiting-scholars-series 5 as dvvs_list %}
+	<ul>
+	{% for event in dvvs_list %}
+		<li>
+			<h3><a href="{{ event.get_absolute_url }}" title="{{ event.name }}">{{ event.name }}</a></h3>
+			<p class="event_meta">{{ event.event_date|date:"N j" }} at {{ event.start_time }} at {{ event.location }} -- Speaker: {{ event.speaker }}</p>
+		</li>
+	{% endfor %}
+	</ul>
+</div>
+
+<h2>RSS</h2>
+<p class="rss"><a href="/feeds/eventtypes/distinguished-visiting-scholars-series/" title="RSS feed for the Distinguished Visiting Scholars Series">Subscribe to a feed for the Distinguished Visiting Scholars Series</a></p>
+{% endblock %}

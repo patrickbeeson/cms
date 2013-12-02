@@ -1,0 +1,133 @@
+{% extends "base_media.html" %}
+
+{% load generic_markup image_utils tagging_tags shorturl cache %}
+
+{% block title %}{{ video.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ video.description|striptags }}{% endblock %}
+
+{% block revcanonical %}
+	{% revcanonical object %}
+{% endblock %}
+
+{% block facebook_meta_data %}
+<meta property="og:title" content="{{ video.title }}"> 
+<meta property="og:site_name" content="http://research.vtc.vt.edu"> 
+<meta property="og:image" content="{{ STATIC_URL }}{{ video.thumbnail }}"> 
+<meta property="og:type" content="article"> 
+<meta property="og:url" content="http://research.vtc.vt.edu{{ video.get_absolute_url }}"> 
+<meta property="og:description" content="{{ video.caption|striptags }}"> 
+<meta property="fb:admins" content="194685760573428, 27403640">
+{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}video{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script src="http://apis.google.com/js/plusone.js"></script>
+{% endblock %}
+
+{% block primary_content %}
+{% include "includes/content_tools.html" %}
+
+<div id="video_{{ video.id }}">
+	<h1>{{ video.title }}</h1>
+	
+	<div id="lead_video">
+		{% if video.external_source == 4 %}
+			<iframe src="{{ video.embed_url }}" width="{{ video.embed_width }}" height="{{ video.embed_height }}" frameborder="0" allowfullscreen></iframe>
+		{% else %}
+		{% if video.external_source == 5 %}
+			<iframe src="{{ video.embed_url }}" width="{{ video.embed_width }}" height="{{ video.embed_height }}" frameborder="0" allowfullscreen></iframe>
+		{% endif %}
+		{% endif %}
+		<p id="videographer">By {% if video.videographer %}<a href="mailto:{{ video.videographer.email }}">{{ video.videographer.get_full_name }}</a>{% else %}{{ video.one_off_videographer }}{% endif %}</p>
+	</div>
+
+	{{ video.caption|apply_markup:"markdown" }}
+	
+	
+</div>
+
+{% include "includes/content_tools.html" %}
+
+<div id="more_related">
+	<div class="more_related_content">
+	<h2>Related videos</h2>
+	{% if video.related_video_set.count %}
+	<ul id="related_photos">
+	{% cache 500 video_detail_related video.title %}	
+	{% for related_video in video.related_video_set.all %}
+    	<li><a href="{{ related_video.get_absolute_url }}" title="{{ related_video.title }}">{{ related_video.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	{% else %}
+	<p>There are no videos related to this video.</p>
+	{% endif %}
+	</div>
+	
+	<div class="more_related_content">
+	<h2>Related topics</h2>
+	{% if video.tags %}
+	{% tags_for_object video as tag_list %}
+	<ul id="related_tags">
+	{% cache 500 video_detail_tags video.title %}
+	{% for tag in tag_list|slice:"5" %}
+		<li><a href="/videos/tags/{{ tag.name }}/" title="{{ tag.name }}">{{ tag.name }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	{% else %}
+	<p>There are no topics specified for this video.</p>
+	{% endif %}
+	</div>
+</div>
+
+<div id="content_categories">
+	<h3>Categor{{ video.category.count|pluralize:"y,ies" }}:</h3>
+	<ul>
+	{% cache 500 video_detail_categories video.title %}
+	{% for category in video.category.all %}
+		<li><a href="{{ category.get_absolute_url }}">{{ category.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+</div>
+
+{% endblock %}
+
+{% block secondary_content %}
+	{% if video.live_story_set %}
+	<div id="related_content">
+		<h2>Related stories</h2>
+		<ul class="related_item_list">
+		{% cache 500 video_detail_categories video.title %}
+		{% for story in video.live_story_set %}
+			<li><a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">{{ story.headline }}</a></li>
+		{% endfor %}
+		{% endcache %}
+		</ul>
+	</div>
+	{% endif %}
+{% endblock %}
+
+{% block in_body_js %}
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({status: true, cookie: true,
+             xfbml: true});
+  };
+  (function() {
+    var e = document.createElement('script'); e.async = true;
+    e.src = document.location.protocol +
+      '//connect.facebook.net/en_US/all.js';
+    document.getElementById('fb-root').appendChild(e);
+  }());
+</script>
+{% endblock %}

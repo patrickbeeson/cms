@@ -1,0 +1,66 @@
+{% extends "base_flatpages.html" %}
+
+{% load generic_markup events image_utils %}
+
+{% block title %}{{ flatpage.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ flatpage.title }}{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}flatpages{% endblock %}
+
+{% block primary_content %}
+<h1>{{ flatpage.title }}</h1>
+
+<div id="content_body">
+	{{ flatpage.content|apply_markup:"markdown" }}
+	
+	<p id="series_schedule"><a href="">Download a PDF of the Distinguished Visiting Scholars Series for Fall 2011 through Spring 2012</a></p>
+	
+	{% get_upcoming_events_for_eventtype distinguished-visiting-scholars-series 1 as upcoming_seminar %}
+	{% for event in upcoming_seminar %}
+	<h3>Upcoming seminar</h3>
+	<div id="upcoming_seminar">
+		{% if event.show_webcast %}<span class="live_webcast">Live webcast now!</span>{% endif %}
+		<h2>
+			<a href="{{ event.get_absolute_url }}" title="{{ event.name }}">
+				<img src="{{ event.speaker_mugshot|crop:"150x150" }}" alt_text="{{ event.name }}">
+				{{ event.name }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ event.event_date|date:"N jS" }}, {% if event.is_all_day %}All day{% else %}{{ event.start_time }} to {{ event.finish_time }}{% endif %} at {{ event.location }} {% if event.has_webcast %}<i>(live webcast available)</i>{% endif %}</p>
+		<p class="summary"><b>Speaker:</b> {% if event.speaker_website %}<a href="{{ event.speaker_website }}">{{ event.speaker }}</a>{% else %}{{ event.speaker }}{% endif %}, <i>{{ event.speaker_title }}</i></p>
+		{{ event.description|apply_markup:"markdown" }}
+	</div>
+	<p id="more_seminars"><a href="/events/distinguished-visiting-scholars-series/">&laquo; More upcoming seminars in this series</a></p>
+	{% endfor %}
+	
+	<h3>Previous seminars in this series</h3>		
+	{% get_expired_events_for_eventtype distinguished-visiting-scholars-series as seminar_list %}
+	{% regroup seminar_list by speaker as speaker_list %}
+	<ul id="seminar_list">
+	{% for speaker in speaker_list %}
+	<li>
+		<ul>
+		{% for event in speaker.list %}
+		{% ifequal forloop.counter 1 %}
+		<div class="speaker_meta">
+			<img src="{{ event.speaker_mugshot|crop:"100x100" }}" alt_text="{{ event.name }}">
+			<h3><b>{% if event.speaker_website %}<a href="{{ event.speaker_website }}">{{ event.speaker }}</a></b>{% else %}{{ event.speaker }}{% endif %}</b></h3>
+			<p><i>{{ event.speaker_title }}</i></p>
+		</div>
+		{% endifequal %}
+		<div class="seminar">
+			<h2><a href="{{ event.get_absolute_url }}">{{ event.name }}</a></h2>
+			<p class="content_meta">{{ event.get_audience_type_display }} lecture held {{ event.event_date|date:"N j, Y" }}</p>
+		</div>
+		{% endfor %}
+		</ul>
+	</li>
+	{% endfor %}
+	</ul>
+</div>
+{% endblock %}

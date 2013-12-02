@@ -1,0 +1,9 @@
+/* IE8 specific styles */
+
+#navigation #nav_som .submenu {
+left: 240px !important;
+}
+
+#navigation #nav_ri .submenu {
+left: 435px !important;
+}

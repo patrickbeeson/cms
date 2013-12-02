@@ -1,0 +1,97 @@
+{% extends "base_jobs.html" %}
+
+{% load generic_markup generic_content %}
+
+{% block title %}{{ job.title }} job {{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ job.description|striptags }}{% endblock %}
+
+{% block prevent_indexing %}
+{% if job.is_expired %}
+<meta name="robots" content="noindex">
+{% endif %}
+{% endblock %}
+
+{% block facebook_meta_data %}
+<meta property="og:title" content="{{ job.title }}"> 
+<meta property="og:site_name" content="">
+<meta property="og:type" content="article"> 
+<meta property="og:url" content="{{ job.get_absolute_url }}"> 
+<meta property="og:description" content="{{ job.description|striptags }}"> 
+<meta property="fb:admins" content="120821141294258, 27403640"> 
+{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}jobs{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script src="{{ STATIC_URL }}js/print.js"></script>
+<script src="http://apis.google.com/js/plusone.js"></script>
+{% endblock %}
+
+{% block primary_content %}
+
+{% include "includes/content_tools.html" %}
+
+<div id="job_{{ category.id }}" class="content_body">
+	{% if job.is_expired %}
+	<p id="expired_flag">This job listing is expired.</p>
+	{% endif %}
+
+	<h1>{{ job.title }}</h1>
+	
+	<h2>Description</h2>
+	{{ job.description_html|safe }}
+	
+	
+	<h2>Required qualifications</h2>
+	{{ job.required_qualifications_html|safe }}
+	
+	<h2>How to apply</h2>
+	{{ job.how_to_apply_html|safe|urlize }}
+	
+</div>
+
+{% include "includes/content_tools.html" %}
+{% endblock %}
+
+{% block secondary_content %}
+<h2>Job details</h2>
+<ul id="job_info">
+	<li>Date created: {{ job.created }}</li>
+	<li>Review date: {{ job.posting_end_date }}</li>
+	<li>External link: {{ job.external_link|urlize }}</li>
+	{% if job.posting_number %}<li>Job posting number: {{ job.posting_number }}</li>{% endif %}
+</ul>	
+
+{% get_latest_objects jobs.job 5 as latest_jobs %}
+{% if latest_jobs %}
+<h2>Recently posted jobs</h2>
+<ul id="latest_jobs">
+{% for job in latest_jobs %}
+	<li><a href="{{ job.get_absolute_url }}" title="{{ job.title }}">{{ job.title }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+
+{% endblock %}
+
+{% block in_body_js %}
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({status: true, cookie: true,
+             xfbml: true});
+  };
+  (function() {
+    var e = document.createElement('script'); e.async = true;
+    e.src = document.location.protocol +
+      '//connect.facebook.net/en_US/all.js';
+    document.getElementById('fb-root').appendChild(e);
+  }());
+</script>
+{% endblock %}

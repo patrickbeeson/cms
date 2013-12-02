@@ -1,0 +1,130 @@
+{% extends "base_media.html" %}
+
+{% load generic_markup image_utils tagging_tags cache %}
+
+{% block title %}{{ audio.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ audio.description|striptags }}{% endblock %}
+
+{% block facebook_meta_data %}
+<meta property="og:title" content="{{ audio.title }}"> 
+<meta property="og:site_name" content="http://research.vtc.vt.edu"> 
+{% if audio.thumbnail %}<meta property="og:image" content="{{ STATIC_URL }}{{ audio.thumbnail }}">{% endif %} 
+<meta property="og:type" content="article"> 
+<meta property="og:url" content="http://research.vtc.vt.edu{{ audio.get_absolute_url }}"> 
+<meta property="og:description" content="{{ audio.description|striptags }}"> 
+<meta property="fb:admins" content="194685760573428, 27403640"> 
+{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}audio{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script src="http://apis.google.com/js/plusone.js"></script>
+{% endblock %}
+
+{% block primary_content %}
+{% include "includes/content_tools.html" %}
+
+<div id="audio_{{ audio.id }}" class="content_body">
+	<h1>{{ audio.title }}</h1>
+	
+	<audio controls>
+	{% for audiofile in audio.audiofile_set.all %}
+		<source src="{{ STATIC_URL }}{{ audiofile.file }}" type="audio/{{ audiofile.get_encoding_type_display }}">
+	{% endfor %}
+	</audio>
+	
+	<p id="byline">By {% if audio.producer %}<a href="mailto:{{ audio.producer.email }}">{{ audio.producer.get_full_name }}</a>{% else %}{{ audio.one_off_producer }}{% endif %}</p>
+
+	{% if audio.thumbnail %}
+	<img src="{{ audio.thumbnail|crop:"150x150" }}" alt="{{ audio.photo.alt_text }}" id="thumbnail">
+	{% endif %}
+
+	{{ audio.description|apply_markup:"markdown" }}
+	
+</div>
+
+{% include "includes/content_tools.html" %}
+
+<div id="more_related">
+	<div class="more_related_content">
+	<h2>Related audio</h2>
+	{% if audio.related_audio_set.count %}
+	<ul id="related_audio">
+	{% cache 500 audio_detail_related_audio audio.title %}	
+	{% for related_audio in audio.related_audio_set.all %}
+    	<li><a href="{{ related_audio.get_absolute_url }}" title="{{ related_audio.title }}">{{ related_audio.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	{% else %}
+	<p>There is no related audio to this audio.</p>
+	{% endif %}
+	</div>
+	
+	<div class="more_related_content">
+	<h2>Related topics</h2>
+	{% if audio.tags %}
+	{% tags_for_object audio as tag_list %}
+	{% cache 500 audio_detail_related_tags audio.title %}
+	<ul id="related_tags">
+	{% for tag in tag_list|slice:"5" %}
+		<li><a href="/audio/tags/{{ tag.name }}/" title="{{ tag.name }}">{{ tag.name }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	{% else %}
+	<p>There are no topics specified for this audio.</p>
+	{% endif %}
+	</div>
+	
+</div>
+
+<div id="content_categories">
+	<h3>Categor{{ audio.category.count|pluralize:"y,ies" }}:</h3>
+	<ul>
+	{% cache 500 audio_detail_categories audio.title %}
+	{% for category in audio.category.all %}
+		<li><a href="{{ category.get_absolute_url }}">{{ category.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+</div>
+
+{% endblock %}
+
+{% block secondary_content %}
+	{% if audio.live_story_set %}
+	<div id="related_content">
+		<h2>Related story{{ audio.live_story_set.count|pluralize }}</h2>
+		<ul class="related_item_list">
+		{% cache 500 audio_detail_related_stories audio.title %}
+		{% for story in audio.live_story_set %}
+			<li><a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">{{ story.headline }}</a></li>
+		{% endfor %}
+		{% endcache %}
+		</ul>
+	</div>
+	{% endif %}
+{% endblock %}
+
+{% block in_body_js %}
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({status: true, cookie: true,
+             xfbml: true});
+  };
+  (function() {
+    var e = document.createElement('script'); e.async = true;
+    e.src = document.location.protocol +
+      '//connect.facebook.net/en_US/all.js';
+    document.getElementById('fb-root').appendChild(e);
+  }());
+</script>
+{% endblock %}

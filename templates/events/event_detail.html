@@ -1,0 +1,185 @@
+{% extends "base_events.html" %}
+
+{% load tagging_tags image_utils thumbnail generic_markup shorturl cache %}
+
+{% block title %}{{ event.name }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{% if event.description %}{{ event.description|striptags }}{% endif %}{% endblock %}
+
+{% block prevent_indexing %}
+{% if event.is_expired %}
+<meta name="robots" content="noindex">
+{% endif %}
+{% endblock %}
+
+{% block revcanonical %}
+	{% revcanonical object %}
+{% endblock %}
+
+{% block facebook_meta_data %}
+<meta property="og:title" content="{{ event.title }}"> 
+<meta property="og:site_name" content="">
+{% if event.lead_image or event.speaker_mugshot %}<meta property="og:image" content="{{ STATIC_URL }}{{ event.lead_image }}">{% else %}<meta property="og:image" content="{{ STATIC_URL }}{{ event.speaker_mugshot }}">{% endif %}
+<meta property="og:type" content="article"> 
+<meta property="og:url" content="{{ event.get_absolute_url }}">
+{% if event.description %}<meta property="og:description" content="{{ event.description|striptags }}">{% endif %} 
+<meta property="fb:admins" content="194685760573428, 27403640"> 
+{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}events{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script src="{{ STATIC_URL }}js/print.js"></script>
+<script src="http://apis.google.com/js/plusone.js"></script>
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true&amp;key=ABQIAAAASQujUzdq1eX_h3MuedejIBRRAvHpoJn-HN28eiaYMWSTskYL6RSBqPnRliWMKh2ZPATflwy1aKIllw"></script>
+<script> 
+function initialize() {
+	if (GBrowserIsCompatible()) {
+		var map = new GMap2(document.getElementById("map_canvas"));
+        map.setCenter(new GLatLng({{ event.location.latitude }}, {{ event.location.point.longitude }}), 17);
+        
+        var point = new GLatLng({{ event.location.point.latitude }},{{ event.location.point.longitude }});
+		map.addOverlay(new GMarker(point));
+		map.addControl(new GSmallMapControl());
+		map.addControl(new GMapTypeControl());
+	}
+}
+</script> 
+{% endblock %}
+
+{% block on_load %} onload="initialize()" onunload="GUnload()"{% endblock %}
+
+{% block primary_content %}
+
+{% include "includes/content_tools.html" %}
+
+<div id="event_{{ event.id }}" class="content_body">
+
+	{% if event.is_expired %}
+	<p id="alert_flag">This event is expired.</p>
+	{% endif %}
+	
+	<h1>{{ event.name }}</h1>
+
+	<ul id="event_meta">
+		<li><strong>When</strong> <span>{{ event.event_date|date:"F j" }}, {% if event.is_all_day_event %}All day{% else %}{{ event.start_time }}{% if event.finish_time %} to {{ event.finish_time }}{% endif %}{% endif %}{% if not event.is_expired %} {% if event.has_webcast %}<i><a href="/live-webcast/">(live webcast available)</a></i>{% endif %}</span>{% endif %}</li>
+		{% if event.speaker %}<li><strong>Who</strong> <span>{{ event.speaker }}, {{ event.speaker_title }}</span></li>{% endif %}
+		<li><strong>Where</strong> <span>{{ event.location }}, {{ event.room_or_area }}</span></li>
+		{% if event.notes %}<li><strong style="display: none;">Notes</strong> <span>{{ event.notes }}</span></li>{% endif %}
+	</ul>
+	
+	{% if event.show_webcast %}	
+	<object type="application/x-shockwave-flash" height="354" width="630" id="live_embed_player_flash" data="" bgcolor="#000000"><param name="allowFullScreen" value="true" /><param name="allowScriptAccess" value="always" /><param name="allowNetworking" value="all" /><param name="movie" value="http://www.justin.tv/widgets/live_embed_player.swf" /><param name="flashvars" value="hostname=www.justin.tv&channel=vtcri&auto_play=false&start_volume=100" /></object>
+	{% else %}
+	{% if event.show_archived_webcast %}
+	<div id="lead_video">
+		{% if event.archived_webcast.external_source == 4 %}
+			<iframe src="{{ event.archived_webcast.embed_url }}" width="{{ event.archived_webcast.embed_width }}" height="{{ event.archived_webcast.embed_height }}" frameborder="0" allowfullscreen></iframe>
+		{% else %}
+		{% if event.archived_webcast.external_source == 5 %}
+			<iframe src="{{ event.archived_webcast.embed_url }}" width="{{ event.archived_webcast.embed_width }}" height="{{ event.archived_webcast.embed_height }}" frameborder="0" allowfullscreen></iframe>
+		{% endif %}
+		{% endif %}
+		{% comment %}<p id="videographer">By {% if event.archived_webcast.videographer %}<a href="mailto:{{ event.archived_webcast.videographer.email }}">{{ event.archived_webcast.videographer.get_full_name }}</a>{% else %}{{ event.archived_webcast.one_off_videographer }}{% endif %}</p>{% endcomment %}
+	</div>
+	{% if event.lead_image %}
+	<img src="{{ event.lead_image|thumbnail:"630w" }}" alt="Image for {{ event.name }}" id="lead_image">
+	{% endif %}
+	{% endif %}
+	{% endif %}
+
+	{% if event.description %}{{ event.description|apply_markup:"markdown" }}{% endif %}
+	
+	{% if event.speaker %}
+	<div id="event_speaker">
+		{% if event.speaker_mugshot %}
+		<div id="speaker_mugshot">
+			<img src="{{ event.speaker_mugshot|crop:"150x150" }}" alt="event.speaker">
+			<p id="speaker">{{ event.speaker }}</p>
+		</div>
+	{% endif %}
+		{{ event.speaker_bio|apply_markup:"markdown" }}
+	</div>
+	{% endif %}
+
+<div id="content_categories">
+	<h3>Event Type{{ event.event_type.count|pluralize }}:</h3>
+	<ul>
+	{% cache 500 event_detail_eventtypes event.name %}
+	{% for eventtype in event.event_type.all %}
+		<li><a href="{{ eventtype.get_absolute_url }}">{{ eventtype.title }}</a></li>
+	{% if forloop.last %}{% else %}
+	{% ifequal forloop.revcounter0 1 %}and {% else %}, {% endifequal %}
+	{% endif %}
+	{% endfor %}
+	{% endcache %}
+	</ul>
+</div>
+		
+</div>
+
+{% include "includes/content_tools.html" %}
+
+<div id="more_related">
+
+	<div class="more_related_content">
+		<h2>Related upcoming events</h2>
+		{% if event.related_event_set.count %}
+		<ul id="related_events">
+		{% cache 500 event_detail_related_events event.name %}	
+		{% for related_event in event.related_event_set.all %}
+    		<li><a href="{{ related_event.get_absolute_url }}" title="{{ related_event.name }}">{{ related_event.name }}</a></li>
+		{% endfor %}
+		{% endcache %}
+		</ul>
+		{% else %}
+		<p>There are no events related to this event.</p>
+		{% endif %}
+	</div>
+	
+	<div class="more_related_content">
+		<h2>Related topics</h2>
+		{% if event.tags %}
+		{% tags_for_object event as tag_list %}
+		<ul id="related_tags">
+		{% cache 500 event_detail_related_tags event.name %}
+		{% for tag in tag_list|slice:"5" %}
+			<li><a href="/events/tags/{{ tag.name }}/" title="{{ tag.name }}">{{ tag.name }}</a></li>
+		{% endfor %}
+		{% endcache %}
+		</ul>
+		{% else %}
+		<p>There are no topics specified for this event.</p>
+		{% endif %}
+	</div>
+</div>
+
+
+{% endblock %}
+
+{% block secondary_content %}
+	<h2>Additional details</h2>
+	<p>This {% if event.is_free %}is a free event.{% else %}event costs ${{ event.cost }} to attend.{% endif %} {% if event.host or event.one_off_host %}The host is {{ event.host.get_full_name }}{{ event.one_off_host }}.{% endif %} {% if event.contact_phone_number and event.contact_email %}For more information, please call {{ event.contact_phone_number|phone2numeric }}, or <a href="mailto:{{ event.contact_email }}">send an e-mail</a>.{% else %}{% if event.contact_phone_number and not event.contact_email %}For more information, please call {{ event.contact_phone_number|phone2numeric }}.{% else %}{% if event.contact_email and not event.contact_phone_number %}For more information, please <a href="mailto:{{ event.contact_email }}">send an e-mail</a>.{% endif %}{% endif %}{% endif %}</p>
+
+	{% if event.external_URL %}<p>You can also <a href="{{ event.external_URL }}">view this event</a> on the Virginia Tech Calendar.</p>{% endif %}
+
+	<h3>Map and parking</h3>
+
+	<p>This map shows where the {{ event.location }} is located in {{ event.location.city }}{% if event.location.point.address %} at {{ event.location.point.address }}{% endif %}.</p>
+	
+	{% if event.location.parking %}<p>{{ event.location.parking }}</p>{% endif %}
+
+	<div id="map_canvas"></div>
+	
+	<p id="map_note"><i>Click the "Google" logo for a larger version.</i></p>
+	
+{% endblock %}
+
+{% block in_body_js %}
+{% include "includes/facebook_js.html" %}
+{% endblock %}

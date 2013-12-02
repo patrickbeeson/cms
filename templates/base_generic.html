@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:og="http://opengraphprotocol.org/schema/" xmlns:fb="http://www.facebook.com/2008/fbml">
+<head>
+	<meta charset="UTF-8">
+	<meta name="description" content="{% block meta_description %}{% endblock %}">
+	{% block facebook_meta_data %}{% endblock %}
+
+	<title>{% block title %}{% endblock %}</title> 
+	
+	<link rel="shortcut icon" href="{{ STATIC_URL }}images/favicon.ico">
+	
+	{% block css %}
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/reset.css">
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/styles.css">
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/print.css" media="print">
+	<link href="http://fonts.googleapis.com/css?family=Droid+Serif:regular,italic,bold,bolditalic" rel="stylesheet">
+	<link href="http://fonts.googleapis.com/css?family=Droid+Sans:regular,bold" rel="stylesheet">
+	{% endblock %}
+
+	{% block ie_specific_files %}
+	<!--[if IE 7]><link rel="stylesheet" href="{{ STATIC_URL }}css/ie7.css"><![endif]-->
+	<!--[if IE 8]><link rel="stylesheet" href="{{ STATIC_URL }}css/ie8.css"><![endif]-->
+	{% endblock %}
+	
+	{% block js %}
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+	<script src="{{ STATIC_URL }}js/drop_down_menu.js"></script>
+	<script src="{{ STATIC_URL }}js/modernizr-1.7.min.js"></script>
+	{% endblock %}
+	
+	{% block feeds %}
+	{% endblock %}
+	
+	{% block google_webmaster_meta %}
+	{% endblock %}
+	
+	{% block prevent_indexing %}
+	{% endblock %}
+	
+	{% block revcanonical %}
+	{% endblock %}
+	
+	{% block google_analytics %}
+<script>
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23411213-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+{% endblock %}	
+</head>
+
+<body id="{% block app_type %}{% endblock %}" class="{% block view_type %}{% endblock %}{% block date_type %}{% endblock %}"{% block on_load %} {% endblock %}>
+	<div id="wrap"><!--Begin wrap-->
+	
+	<div id="header"><!--Begin header-->
+  
+	<h1 id="branding"><a href="" title=""></a></h1>
+ 
+	<div id="navigation"><!--Begin navigation--> 
+
+		<ul>
+			<li id="nav_home"><a href=""><img src="/images/homeicon.png" alt="Home"></a></li> 
+			<li id="nav_about" class="dropdown"><a href="/about/">About</a>
+				<ul class="submenu">
+					<li><a href="/news/">News</a></li>
+					<li><a href="/news/links/">In the news</a></li>
+					<li><a href="">Upcoming events</a></li>
+					<li><a href="/about/">History</a></li>
+					<li><a href="/about/about-the-partners.html">Partners</a></li>
+					<li><a href="/about/leadership/">Leadership</a></li>
+				</ul>
+			</li>
+			<li id="nav_som" class="dropdown"><a href="/education/">School of Medicine</a>
+				<ul class="submenu">
+					<li id="nav_som_about">
+						<h3><a href="/education/">About</a></h3>
+						<ul>
+							<li><a href="/education/news/">News</a></li>
+							<li><a href="/education/leadership/">Leadership</a></li>
+							<li><a href="/education/mission_vision.html">Mission</a></li>
+							<li><a href="/education/curriculum/academic-calendar.html">Academic calendar</a></li>
+							<li><a href="/education/admissions/Student_Testimonials/studenttestimonials.html">Testimonials</a></li>
+							<li><a href="/education/news/links/">Press</a></li>
+						</ul>
+					</li>
+					<li id="nav_som_admissions">
+						<h3><a href="/education/admissions/vtcadmissions.html">Admissions</a></h3>
+						<ul>
+							<li><a href="/education/admissions/academic_requirements.html">Requirements</a></li>
+							<li><a href="/education/admissions/tuition_fees.html">Tuition/fees</a></li>
+							<li><a href="/education/admissions/application_process.html">Applications</a></li>
+							<li><a href="/education/admissions/interview_day.html">Interview</a></li>
+						</ul>
+					</li>
+					<li id="nav_som_curriculum">
+						<h3><a href="/education/curriculum/index.html">Curriculum</a></h3>
+						<ul>
+							<li><a href="/education/curriculum/value_domains.html">Value domains</a></li>
+							<li><a href="/education/curriculum/basic_sciences_curriculum/basic-sciences-curriculum.html">Basic sciences</a></li>
+							<li><a href="/education/curriculum/clinical_sciences_curriculum/clinical-sciences-curriculum.html">Clinical sciences</a></li>
+							<li><a href="/education/curriculum/research_curriculum/research-curriculum.html">Research</a></li>
+							<li><a href="/education/curriculum/interprofessionalism_curriculum/interprofessionalism-curriculum.html">Interprofessionalism</a></li>
+						</ul>
+					</li>
+					<li id="nav_som_departments">
+						<h3><a href="/education/departments/">Departments</a></h3>
+						<ul>
+							<li><a href="/education/departments/basicsciencefaculty.html">Basic sciences</a></li>
+							<li><a href="/education/departments/emergencymedicinefaculty.html">Emergency medicine</a></li>
+							<li><a href="/education/departments/familymedicinefaculty.html">Family medicine</a></li>
+							<li><a href="/education/departments/interprofessionalismfaculty.html">Interprofessionalism</a></li>
+							<li><a href="/education/departments/internalmedicinefaculty.html">Internal medicine</a></li>
+							<li><a href="/education/departments/obgynfaculty.html">Obstetrics and gynecology</a></li>
+							<li><a href="/education/departments/pediatricsfaculty.html">Pediatrics</a></li>
+							<li><a href="/education/departments/psychiatryfaculty.html">Psychiatry</a></li>
+							<li><a href="/education/departments/radiologyfaculty.html">Radiology</a></li>
+							<li><a href="/education/departments/Surgeryfaculty.html">Surgery</a></li>
+						</ul>
+					</li>
+					<li id="nav_som_faculty">
+						<h3><a href="/education/faculty_affairs/">Faculty</a></h3>
+						<ul>
+							<li><a href="/education/faculty_affairs/committees.html">Committees</a></li>
+							<li><a href="/education/faculty_affairs/standard_CV.html">Curriculum Vitae</a></li>
+							<li><a href="/education/faculty_affairs/research_resources/Poster_Templates.html">Research resources</a></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li id="nav_ri" class="dropdown"><a href="/" title="Research Institute">Research Institute</a>
+				<ul class="submenu">
+					<li id="nav_ri_about">
+						<h3><a href="/about/" title="About">About</a></h3>
+						<ul>
+							<li><a href="/about/leadership/" title="Leadership">Leadership</a></li>
+							<li><a href="/jobs/" title="Jobs">Jobs</a></li>
+							<li><a href="/press/" title="Press">Press</a></li>
+							<li><a href="/contact/" title="Contact">Contact</a></li>
+						</ul>
+					</li>
+					<li id="nav_ri_employees">
+						<h3><a href="/employees/" title="Employees">Employees</a></h3>
+						<ul>
+							<li><a href="/employees/faculty/" title="Faculty">Faculty</a></li>
+							<li><a href="/employees/postdocs/" title="Postdocs">Postdocs</a></li>
+							<li><a href="/employees/administrative-support/" title="Administrative support">Admin support</a></li>
+							<li><a href="/employees/research-support/" title="Research support">Research support</a></li>
+						</ul>
+					</li>
+					<li id="nav_ri_news">
+						<h3><a href="/news/" title="News">News</a></h3>
+						<ul>
+							<li><a href="/news/" title="Stories">Stories</a></li>
+							<li><a href="/audio/" title="Audio">Audio</a></li>
+							<li><a href="/photos/" title="Photos">Photos</a></li>
+							<li><a href="/galleries/" title="Galleries">Galleries</a></li>
+							<li><a href="/videos/" title="Videos">Videos</a></li>
+						</ul>
+					</li>
+					<li id="nav_ri_events">
+						<h3><a href="/events/" title="Events">Events</a></h3>
+						<ul>
+							<li><a href="http://research.vtc.vt.edu/events/special-events/">Special Events</a></li>
+							<li><a href="/events/research-seminars/">Research Seminars</a></li>
+							<li><a href="/events/distinguished-visiting-scholars-series/" title="Distinguished Visiting Scholars Series">Distinguished Visiting Scholars Series</a></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+		</ul>
+
+	</div><!--End navigation-->
+	
+	<div id="search"><!--Begin search-->
+		<form action="/search/" id="search_form">
+			<fieldset>
+				<p>
+					<input type="hidden" name="cx" value="011232062083245579586:j5tdofyocj8">
+					<input type="hidden" name="cof" value="FORID:10">
+					<input type="hidden" name="ie" value="UTF-8">
+					<label for="id_q">Search:</label>
+    				<input id="id_q" type="search" name="q" placeholder="neuroscience">
+    			</p>
+    			<input type="submit" name="sa" value="Go" id="search_submit">
+			</fieldset>
+		</form>
+	</div><!--End search-->
+
+	<div id="giving_promo"><!--Giving promo-->
+		<p><a href="/about/giving/giving-to-vtc.html">Giving</a></p>
+	</div><!--End giving promo-->
+
+	</div><!--End header--> 
+
+	<div id="content"><!--Begin content-->
+		<div id="primary_content">
+			{% block primary_content %}
+			{% endblock %}
+		</div>
+		
+		<div id="secondary_content">
+			{% block secondary_content %}
+			{% endblock %}		
+		</div>
+		{% comment %}
+		<div id="tertiary_content">
+			{% block tertiary_content %}
+			{% endblock %}		
+		</div>
+		{% endcomment %}
+	</div><!--End main content-->
+
+	<div id="footer"><!--Begin footer-->
+		<ul id="bottom_nav">
+			<li><a href="/">Home</a></li>
+			<li><a href="/about/">About</a></li>
+			<li><a href="/news/">News</a></li>
+			<li><a href="/events/">Events</a></li>
+			<li><a href="/contact/">Contact</a></li>
+		</ul>
+
+		<div id="copyright_external">
+			<ul id="social">
+				<li><a href=""><img src="/local_assets/images/twitter_sm.png" width="24" height="24" alt="Follow us on Twitter"></a></li>
+				<li><a href=""><img src="/local_assets//images/facebook_sm.png" width="24" height="24" alt="Like us on Facebook"></a></li>
+				<li><a href=""><img src="/images/linkedIn_icon.png" width="24" height="24" alt="Follow us on LinkedIn"></a></li>
+				<li><a href=""><img src="/local_assets//images/youtube_logo_sm.png" width="66" height="24" alt="Watch our videos on YouTube"></a></li>
+			</ul>
+			
+			<ul id="partners">
+				<li><a href=""><img src="/local_assets//images/footer_logo_vt.gif" width="110" height="40" alt=""></a></li>
+				<li><a href=""><img src="/local_assets//images/footer_logo_cc.gif" width="106" height="40" alt=""></a></li>
+			</ul>
+		<p>Copyright &copy; {% now "Y" %} All rights reserved.</p>
+		</div>
+	</div><!--End footer-->
+	
+	</div><!--End wrap-->
+{% block in_body_js %}
+{% endblock %}
+</body>
+</html>

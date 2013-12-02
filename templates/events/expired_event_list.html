@@ -1,0 +1,61 @@
+{% extends "base_events.html" %}
+
+{% load generic_markup image_utils cache %}
+
+{% block title %}Events for {{ event_type.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{% if event_type.description %}{{ event_type.description }}{% else %}Events for {{ event_type.title }}.{% endif %}{% endblock %}
+
+{% block feeds %}<link rel="alternate" href="/feeds/eventtypes/{{ event_type.slug }}/"> {% endblock %}
+
+{% block view_type %}list eventtype_dvss{% endblock %}
+
+{% block app_type %}events{% endblock %}
+
+{% block primary_content %}
+
+<div id="content_list">
+	<h1>Past events for {{ event_type.title }}</h1>
+
+	{% if event_type.description %}{{ event_type.description|apply_markup:"markdown" }}{% endif %}
+
+	{% if event_type.current_event_set %}
+	{% regroup event_type.current_event_set by speaker as speaker_list %}
+	<ul id="seminar_list">
+	{% cache 500 event_by_type event_type.title %}
+	{% for speaker in speaker_list %}
+	<li>
+
+		{% for event in speaker.list %}
+
+		{% ifequal forloop.counter 1 %}
+		<div class="speaker_meta">
+			<img src="{{ event.speaker_mugshot|crop:"150x150" }}" alt_text="{{ event.name }}">
+			<h2>{% if event.speaker_website %}<a href="{{ event.speaker_website }}">{{ event.speaker }}</a>{% else %}{{ event.speaker }}{% endif %}</h2>
+			<p><i>{{ event.speaker_title }}</i></p>
+		</div>
+
+		{% endifequal %}
+		<div class="seminar">
+			<h2><a href="{{ event.get_absolute_url }}" title="{{ event.name }}">{{ event.name }}</a></h2>
+			<p class="content_meta">{{ event.get_audience_type_display }}{% ifequal event.audience_type 2 %} seminar{% else %} lecture{% endifequal %} held {{ event.event_date|date:"N jS" }}, {% if event.is_all_day %}All day{% else %}{{ event.start_time }} to {{ event.finish_time }}{% endif %} at {{ event.location }}</p>
+		</div>
+
+		{% endfor %}
+
+	</li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+	{% else %}
+	<p><em>There are no upcoming events for this series.</em></p>
+	{% endif %}
+
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<h2>RSS</h2>
+<p class="rss"><a href="/feeds/eventtypes/{{ event_type.slug }}/" title="RSS feed for {{ eventtype.title }}">Subscribe to a feed for events of this type</a></p>
+{% endblock %}

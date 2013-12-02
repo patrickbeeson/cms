@@ -1,0 +1,21 @@
+{% extends "base_generic.html" %}
+
+{% block title %}Page not found{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}error{% endblock %}
+
+{% block primary_content %}
+<div class="content_body">
+	<h1>Page not found</h1>
+	<p>The page you requested was not found on this website.</p>
+	<p>If you're trying to reach a page from a bookmark, the page URL could have changed. You might find what you're looking for by using the navigation located above, to the left and at the bottom of the page.</p>
+	<p>If you still have trouble finding what you need, you might try the following:</p>
+	<ul>
+		<li>Use the search box located in the upper right corner of this page.</li>
+		<li><a href="#">Contact the webmaster</a> for further assistance.</li>
+	</ul>
+<p>Thank you for visiting the website.</p>
+</div>
+{% endblock %}

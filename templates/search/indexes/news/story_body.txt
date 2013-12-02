@@ -1,0 +1,4 @@
+{{ object.headline }}
+{{ object.user.get_full_name }}
+{{ object.body }}
+{{ object.summary }}

@@ -1,0 +1,47 @@
+{% extends "base_media.html" %}
+
+{% load image_utils cache %}
+
+{% block title %}Photos for {{ year }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}Photos for {{ year }} from the Virginia Tech Carilion Research Institute.{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list_date{% endblock %}
+
+{% block date_type %} year{% endblock %}
+
+{% block app_type %}photo{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Photos for {{ year }}</h1>
+
+	{% regroup photo_list by uploaded|date:"F" as month_list %}
+	<ul>
+	{% cache 500 photo_list_year year %}
+	{% for month in month_list %}
+    	<li>
+    		<h3 class="month_grouper">{{ month.grouper }}</h3>
+    		<ul>
+        	{% for photo in month.list %}
+				<li class="tease">
+					<h2>
+						<a href="{{ photo.get_absolute_url }}" title="{{ photo.title }}">
+							<img src="{{ photo.photo|crop:"150x150" }}" alt_text="{{ photo.alt_text }}">
+							{{ photo.title }}
+						</a>
+					</h2>
+					<p class="content_meta">By {% if photo.photographer %}<a href="mailto:{{ photo.photographer.email }}">{{ photo.photographer.get_full_name }}</a>{% else %}{{ photo.one_off_photographer }}{% endif %}, published {{ photo.uploaded|date:"N j, Y" }} at {{ photo.uploaded|date:"P" }}</p>
+					<p class="summary">{{ photo.caption|truncatewords:"30" }}</p>
+				</li>
+        	{% endfor %}
+    		</ul>
+    	</li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+</div>
+{% endblock %}

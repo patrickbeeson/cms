@@ -1,0 +1,30 @@
+{% extends "base_topics.html" %}
+
+{% load generic_markup date cache %}
+
+{% block title %}Topic list{{ block.super }}{% endblock %}
+
+{% block meta_description %}All topics for the Virginia Tech Carilion Research Institute{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}topics{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Topic list</h1>
+
+	<ul>
+	{% cache 500 topic_list %}
+	{% for topic in topic_list %}
+		<li><a href="{{ topic.get_absolute_url }}" title="{{ topic.title }}">{{ topic.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; More topics</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">More topics &raquo;</a>{% endif %}</p>
+
+</div>
+{% endblock %}

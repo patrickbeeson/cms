@@ -1,0 +1,3 @@
+{{ obj.description }}
+
+Held {{ obj.event_date|date:"N j, Y" }}, {% if event.is_all_day_event %}all day{% else %}from{{ event.start_time }} to {% if event.finish_time %}{{ event.finish_time }}{% endif %}{% endif %} at {{ obj.location }}.

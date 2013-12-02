@@ -1,0 +1,52 @@
+{% extends "base_events.html" %}
+
+{% load generic_markup date image_utils cache %}
+
+{% block title %}Events relating to {{ tag.name }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}Events relating to {{ tag.name }}{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}events{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Events relating to '{{ tag.name }}'</h1>
+
+	<ul>
+	{% cache 500 event_by_tag tag.name %}
+	{% for event in object_list %}
+				{% if event.lead_image %}
+	<li class="tease">
+		{% if event.show_webcast %}<span class="live_webcast">Live webcast now!</span>{% endif %}
+		<h2>
+			<a href="{{ event.get_absolute_url }}" title="{{ event.name }}">
+				<img src="{{ event.lead_image|crop:"150x150" }}" alt_text="{{ event.name }}">
+				{{ event.name }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ event.event_date|date:"N jS" }}, {% if event.is_all_day %}all day{% else %}{{ event.start_time }}{% endif %} at {{ event.location }}</p>
+		{% if event.speaker %}<p class="event_speaker">Speaker: {% if event.speaker_website %}<a href="{{ event.speaker_website }}">{{ event.speaker }}</a>{% else %}{{ event.speaker }}{% endif %}{% if event.speaker_title %}, {{ event.speaker_title }}{% endif %}</p>{% endif %}
+		{% if event.description %}<p class="summary">{{ event.description|truncatewords:"30" }}</p>{% endif %}
+	</li>
+	{% else %}
+	<li class="no_tease">
+		{% if event.show_webcast %}<span class="live_webcast">Live webcast now!</span>{% endif %}
+		<h2>
+			<a href="{{ event.get_absolute_url }}" title="{{ event.name }}">
+			{{ event.name }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ event.event_date|date:"N jS" }}, {% if event.is_all_day_event %}all day{% else %}{{ event.start_time }}{% endif %} at {{ event.location }}</p>
+		{% if event.speaker %}<p class="event_speaker">Speaker: {% if event.speaker_website %}<a href="{{ event.speaker_website }}">{{ event.speaker }}</a>{% else %}{{ event.speaker }}{% endif %}{% if event.speaker_title %}, {{ event.speaker_title }}{% endif %}</p>{% endif %}
+	</li>
+	{% endif %}
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; Older stories</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Newer events &raquo;</a>{% endif %}</p>
+
+</div>
+{% endblock %}

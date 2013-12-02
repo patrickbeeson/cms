@@ -1,0 +1,37 @@
+{% extends "base_press.html" %}
+
+{% load generic_markup date categories cache %}
+
+{% block title %}Press mentions for {{ faculty_mentioned.first_name }} {{ faculty_mentioned.last_name }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}Press mentions for {{ faculty_mentioned.first_name }} {{ faculty_mentioned.last_name }}{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}press{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Press mentions for {{ faculty_mentioned.first_name }} {{ faculty_mentioned.last_name }}</h1>
+
+	<ul>
+	{% cache 500 mentions_for_employee faculty_mentioned.slug page_obj %}
+	{% for mention in mention_list %}
+		<li>{{ mention.source_name }} ({{ mention.pub_date }}): <a href="{{ mention.URL }}" title="{{ mention.title }}">{{ mention.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; Older press mentions</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Newer press mentions &raquo;</a>{% endif %}</p>
+
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<h2>More press</h2>
+<p><a href="/press/">View a list of all press mentions</a></p>
+<h2>RSS</h2>
+<p class="rss"><a href="/feeds/press/">Subscribe to the press feed</a></p> 
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base_employees.html" %}
+
+{% load generic_markup cache image_utils %}
+
+{% block title %}Research support{{ block.super }}{% endblock %}
+
+{% block meta_description %}Research support{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}employees{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Research support</h1>
+
+	<ul>
+	{% cache 500 research_support_list %}
+	{% for employee in employee_list %}
+		<li>
+			<h2>
+				<a href="{{ employee.get_absolute_url }}" title="{{ employee.first_name }} {{ employee.last_name }}">{% if employee.photo %}<img src="{{ employee.photo|crop:"150x150" }}" alt="{{ employee.first_name }} {{ employee.last_name }}">{% endif %}
+				{{ employee.first_name }} {{ employee.last_name }}</a>
+			</h2>
+			<h3>{{ employee.title }}</h3>
+			<p>{{ employee.job_description|truncatewords:"25" }}</p>
+		</li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<h2>Employee types</h2>
+
+<ul>
+	<li><a href="/employees/faculty/">Faculty</a></li>
+	<li><a href="/employees/postdocs/">Postdocs</a></li>
+	<li><a href="/employees/administrative-support/">Administrative support</a></li>
+	<li><a href="/employees/research-support"/>Research support</li>
+</ul>
+
+<p><a href="/employees/">View a list of all employees</a></p>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base_events.html" %}
+
+{% load image_utils cache %}
+
+{% block title %}Upcoming events for {{ month|date:"F Y" }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}Upcoming events for {{ month|date:"F Y" }}{% endblock %}
+
+{% block view_type %}list_date{% endblock %}
+
+{% block date_type %} month{% endblock %}
+
+{% block app_type %}events{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+
+<h1>Upcoming events for {{ month|date:"F Y" }}</h1>
+
+{% regroup event_list by event_date|date:"l \t\h\e jS" as day_list %}
+<ul>
+{% cache 500 event_list_month month %}
+{% for day in day_list %}
+    <li>
+    	<h3 class="day_grouper">{{ day.grouper }}</h3>
+    	<ul>
+        {% for event in day.list %}
+        			{% if event.lead_image %}
+	<li class="tease">
+		{% if event.show_webcast %}<span class="live_webcast">Live webcast now!</span>{% endif %}
+		<h2>
+			<a href="{{ event.get_absolute_url }}" title="{{ event.name }}">
+				<img src="{{ event.lead_image|crop:"150x150" }}" alt_text="{{ event.name }}">
+				{{ event.name }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ event.event_date|date:"N jS" }}, {% if event.is_all_day %}all day{% else %}{{ event.start_time }}{% endif %} at {{ event.location }}</p>
+		{% if event.speaker %}<p class="event_speaker">Speaker: {% if event.speaker_website %}<a href="{{ event.speaker_website }}">{{ event.speaker }}</a>{% else %}{{ event.speaker }}{% endif %}{% if event.speaker_title %}, {{ event.speaker_title }}{% endif %}</p>{% endif %}
+		{% if event.description %}<p class="summary">{{ event.description|truncatewords:"30" }}</p>{% endif %}
+	</li>
+	{% else %}
+	<li class="no_tease">
+		{% if event.show_webcast %}<span class="live_webcast">Live webcast now!</span>{% endif %}
+		<h2>
+			<a href="{{ event.get_absolute_url }}" title="{{ event.name }}">
+			{{ event.name }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ event.event_date|date:"N jS" }}, {% if event.is_all_day_event %}all day{% else %}{{ event.start_time }}{% endif %} at {{ event.location }}</p>
+		{% if event.speaker %}<p class="event_speaker">Speaker: {% if event.speaker_website %}<a href="{{ event.speaker_website }}">{{ event.speaker }}</a>{% else %}{{ event.speaker }}{% endif %}{% if event.speaker_title %}, {{ event.speaker_title }}{% endif %}</p>{% endif %}
+	</li>
+	{% endif %}
+        {% endfor %}
+    	</ul>
+    </li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+</div>
+{% endblock %}

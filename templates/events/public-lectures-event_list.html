@@ -1,0 +1,64 @@
+{% extends "base_events.html" %}
+
+{% load generic_markup eventtypes image_utils cache %}
+
+{% block title %}Upcoming events{{ block.super }}{% endblock %}
+
+{% block meta_description %}All upcoming events{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}events{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Upcoming events</h1>
+
+	<ul>
+	{% cache 500 event_list page_obj %}
+	{% for event in event_list %}
+			{% if event.lead_image %}
+	<li class="tease">
+		<h2>
+			<a href="{{ event.get_absolute_url }}" title="{{ event.name }}">
+				<img src="{{ event.lead_image|crop:"150x150" }}" alt_text="{{ event.name }}">
+				{{ event.name }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ event.event_date|date:"N jS" }}, {% if event.is_all_day %}All day{% else %}{{ event.start_time }}{% if event.finish_time %} to {{ event.finish_time }}{% endif %}{% endif %} at {{ event.location }}</p>
+		<p class="summary">{{ event.description|truncatewords:"30" }}</p>
+	</li>
+	{% else %}
+	<li class="no_tease">
+		<h2>
+			<a href="{{ event.get_absolute_url }}" title="{{ event.name }}">
+			{{ event.name }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ event.event_date|date:"N jS" }},<br>{% if event.is_all_day_event %}All day{% else %}{{ event.start_time }} to {{ event.finish_time }}{% endif %}</p>
+	</li>
+	{% endif %}
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; Older stories</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Newer events &raquo;</a>{% endif %}</p>
+
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<h2>Types of events</h2>
+<p>Browse upcoming events by the type of event:</p>
+<ul>
+{% cache 500 event_list_eventtypes %}
+{% get_eventtype_list as eventtypes_list %}
+{% for eventtype in eventtypes_list %}
+<li><a href="{{ eventtype.get_absolute_url }}" title="{{ eventtype.title }}">{{ eventtype.title }}</a></li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+<h2>RSS</h2>
+<p class="rss"><a href="/feeds/events/" title="RSS feed for upcoming events">Subscribe to a feed of upcoming events</a></p>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base_employees.html" %}
+
+{% load generic_markup image_utils cache %}
+
+{% block title %}Employees{{ block.super }}{% endblock %}
+
+{% block meta_description %}Employees{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}employees{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Employees</h1>
+
+	{% regroup employee_list|dictsort:"get_employee_type_display" by get_employee_type_display as type_list %}
+	<ul>
+	{% cache 500 employee_list %}
+	{% for get_employee_type_display in type_list %}
+		<li>
+			<h3>{{ get_employee_type_display.grouper }}</h3>
+			<ul>
+				{% for employee in get_employee_type_display.list %}
+				<li>
+					<h2>
+						<a href="{{ employee.get_absolute_url }}" title="{{ employee.first_name }} {{ employee.last_name }}">{% if employee.photo %}<img src="{{ employee.photo|crop:"150x150" }}" alt="{{ employee.first_name }} {{ employee.last_name }}">{% endif %}
+				{{ employee.first_name }} {{ employee.last_name }}</a>
+					</h2>
+					<h3>{{ employee.title }}</h3>
+					<p>{{ employee.job_description|truncatewords:"25" }}</p>
+				</li>
+				{% endfor %}
+			</ul>
+		</li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+</div>
+
+{% endblock %}
+
+{% block secondary_content %}
+<h2>Employee types</h2>
+
+<ul>
+	<li><a href="/employees/faculty/">Faculty</a></li>
+	<li><a href="/employees/postdocs/">Postdocs</a></li>
+	<li><a href="/employees/administrative-support/">Administrative support</a></li>
+	<li><a href="/employees/research-support"/>Research support</li>
+</ul>
+
+{% endblock %}

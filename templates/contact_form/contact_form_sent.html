@@ -1,0 +1,15 @@
+{% extends "base_contact.html" %}
+
+{% block  title %}Message sent{{ block.super }}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}contact{% endblock %}
+
+{% block primary_content %}
+<div class="content_body">
+	<h1>Message sent</h1>
+	<p>Your message has been received!</p>
+	<p>Please allow at least a day or so before expecting a reply.</p>
+</div>
+{% endblock %}

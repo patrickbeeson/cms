@@ -1,0 +1,21 @@
+{% extends "base_flatpages.html" %}
+
+{% load generic_markup %}
+
+{% block title %}{{ flatpage.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ flatpage.title }}{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}flatpages{% endblock %}
+
+{% block primary_content %}
+<h1>{{ flatpage.title }}</h1>
+
+<div id="content_body">
+	{{ flatpage.content|apply_markup:"markdown" }}
+</div>
+{% endblock %}

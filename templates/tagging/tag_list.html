@@ -1,0 +1,5 @@
+{% block primary_content %}
+{% for tag in object_list %}
+<a href="{{ tag.tagged_item.get_absolute_url }}">{{ tag.name }}</a>
+{% endfor %}
+{% endblock %}

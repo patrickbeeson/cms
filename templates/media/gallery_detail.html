@@ -1,0 +1,150 @@
+{% extends "base_media.html" %}
+
+{% load generic_markup image_utils thumbnail tagging_tags shorturl cache %}
+
+{% block title %}{{ gallery.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ gallery.description|striptags }}{% endblock %}
+
+{% block revcanonical %}
+	{% revcanonical object %}
+{% endblock %}
+
+{% block facebook_meta_data %}
+<meta property="og:title" content="{{ gallery.title }}"/> 
+<meta property="og:site_name" content="http://research.vtc.vt.edu"/> 
+<meta property="og:image" content="{{ STATIC_URL }}{% for photo in gallery.photos.all|slice:"1" %}{{ photo.photo }}{% endfor %}"/> 
+<meta property="og:type" content="article" /> 
+<meta property="og:url" content="http://research.vtc.vt.edu{{ gallery.get_absolute_url }}"/> 
+<meta property="og:description" content="{{ gallery.description|striptags }}"/> 
+<meta property="fb:admins" content="194685760573428, 27403640"/> 
+{% endblock %}
+
+{% block js %}
+{{ block.super }}
+<script src="{{ MEDIA_URL }}js/photo_gallery.js"></script>
+<script src="http://apis.google.com/js/plusone.js"></script>
+{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}gallery{% endblock %}
+
+{% block primary_content %}
+{% include "includes/content_tools.html" %}
+
+<div id="gallery_{{ gallery.id }}" class="content_body">
+	<h1>{{ gallery.title }}</h1>
+
+	<ul id="image_gallery">
+	{% cache 500 gallery_detail_photos gallery.title %}
+	{% for photo in gallery.ordered_photos_for_gallery %} 
+		<li> 
+			<a href="{{ photo.photo|thumbnail:"630w" }}#lead_photo" title="{{ photo.title }}"> 
+			<img src="{{ photo.photo|crop:"150x150" }}" alt="{{ photo.alt_text }}"> 
+			</a>
+			
+			<h2 class="title">{{ photo.title }}</h2>
+			
+			<p class="photographer">By {% if photo.photographer %}<a href="mailto:{{ photo.photographer.email }}">{{ photo.photographer.get_full_name }}</a>{% else %}{{ photo.one_off_photographer }}{% endif %}</p>
+			
+            <div class="caption">
+            	{{ photo.caption|apply_markup:"markdown" }}
+            </div>
+            
+		</li>
+	{% endfor %}
+	{% endcache %}
+    </ul> 
+	
+	<p class="gallery_note">Click each photo thumbnail to view a larger version.</p>
+	
+	<div id="gallery_description">
+		{{ gallery.description|apply_markup:"markdown" }}
+	</div>
+	
+</div>
+
+{% include "includes/content_tools.html" %}
+
+<div id="more_related">
+
+	<div class="more_related_content">
+	<h2>Related galleries</h2>
+	{% if gallery.related_gallery_set.count %}
+	<ul id="related_galleries">
+	{% cache 500 gallery_detail_related_galleries gallery.title %}	
+	{% for related_gallery in gallery.related_gallery_set.all %}
+    	<li><a href="{{ related_gallery.get_absolute_url }}" title="{{ related_gallery.title }}">{{ related_gallery.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	{% else %}
+	<p>There are no galleries related to this gallery.</p>
+	{% endif %}
+	</div>
+	
+	<div class="more_related_content">
+	<h2>Related topics</h2>
+	{% if gallery.tags %}
+	{% tags_for_object gallery as tag_list %}
+	<ul id="related_tags">
+	{% cache 500 gallery_detail_related_tags gallery.title %}
+	{% for tag in tag_list|slice:"5" %}
+		<li><a href="/galleries/tags/{{ tag.name }}/" title="{{ tag.name }}">{{ tag.name }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	{% else %}
+	<p>There are no topics specified for this gallery.</p>
+	{% endif %}
+	</div>
+	
+</div>
+
+<div id="content_categories">
+	<h3>Categor{{ gallery.category.count|pluralize:"y,ies" }}:</h3>
+	<ul>
+	{% cache 500 gallery_detail_categories gallery.title %}
+	{% for category in gallery.category.all %}
+		<li><a href="{{ category.get_absolute_url }}">{{ category.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+</div>
+
+{% endblock %}
+
+
+{% block secondary_content %}
+	{% if gallery.live_story_set %}
+	<div id="related_content">
+		<h2>Related stories</h2>
+		<ul class="related_item_list">
+		{% cache 500 gallery_detail_related_stories gallery.title %}
+		{% for story in gallery.live_story_set %}
+			<li><a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">{{ story.headline }}</a></li>
+		{% endfor %}
+		{% endcache %}
+		</ul>
+	</div>
+	{% endif %}
+{% endblock %}
+
+{% block in_body_js %}
+<div id="fb-root"></div>
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({status: true, cookie: true,
+             xfbml: true});
+  };
+  (function() {
+    var e = document.createElement('script'); e.async = true;
+    e.src = document.location.protocol +
+      '//connect.facebook.net/en_US/all.js';
+    document.getElementById('fb-root').appendChild(e);
+  }());
+</script>
+{% endblock %}

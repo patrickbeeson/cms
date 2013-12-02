@@ -1,0 +1,22 @@
+{% extends "base_search.html" %}
+
+{% block title %}Search results{{ block.super }}{% endblock %}
+
+{% block meta_description %}Search results for your query{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}google_search{% endblock %}
+
+{% block primary_content %}
+    <h1>Search</h1>
+	<div id="search_results" class="content_body"></div>
+<script>
+  var googleSearchIframeName = "search_results";
+  var googleSearchFormName = "search_form";
+  var googleSearchFrameWidth = 630;
+  var googleSearchDomain = "www.google.com";
+  var googleSearchPath = "/cse";
+</script>
+<script src="http://www.google.com/afsonline/show_afs_search.js"></script>
+{% endblock %}

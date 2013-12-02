@@ -1,0 +1,66 @@
+{% extends "base_news.html" %}
+
+{% load generic_markup image_utils date cache %}
+
+{% block title %}Stories relating to {{ tag.name }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}Stories relating to {{ tag.name }}{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}news{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Stories relating to '{{ tag.name }}'</h1>
+
+	<ul>
+	{% cache 500 story_list_tag tag.name %}
+	{% for story in object_list %}
+		<li{% if story.tease_photo %} class="tease"{% endif %}>
+			{% if story.tease_photo %}
+			<a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">
+			<img src="{{ story.tease_photo.photo|crop:"150x150" }}" alt="{{ story.tease_photo.alt_text }}">
+			<h2>{{ story.headline }}</h2>
+			</a>
+			{% else %}
+			<h2><a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">{{ story.headline }}</a></h2>
+			{% endif %}
+			<p class="story_meta">{% comment %}By {% if story.author %}<a href="mailto:{{ featuredstory.story.author.email }}">{{ story.author.get_full_name }}</a>{% else %}{{ story.one_off_byline }}{% endif %}, {% endcomment %}Published {{ story.pub_date|date:"N jS" }} at {{ story.pub_date|date:"P" }}{% if story.updated %}<span class="updated">, updated {{ story.updated }}</span>{% endif %}</p>
+			{% if story.summary %}
+			<p class="story_summary">{{ story.summary|truncatewords:"30" }}</p>
+			{% endif %}
+		</li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; Older stories</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Newer stories &raquo;</a>{% endif %}</p>
+
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<h2>Date-based archives</h2>
+
+<h3>Year</h3>
+{% get_story_year_list as year_list %}
+<ul>
+{% cache 500 story_list_year tag.name %}
+{% for year in year_list %}
+	<li><a href="/news/{{ year|date:"Y"|lower }}/">{{ year|date:"Y" }}</a></li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+<h3>Month</h3>
+{% get_story_month_list as month_list %}
+<ul>
+{% cache 500 story_list_month tag.name %}
+{% for month in month_list %}
+	<li><a href="/news/{{ month|date:"Y/M"|lower }}/">{{ month|date:"F Y" }}</a></li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+{% endblock %}

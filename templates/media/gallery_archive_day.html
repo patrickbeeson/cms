@@ -1,0 +1,41 @@
+{% extends "base_media.html" %}
+
+{% load image_utils cache %}
+
+{% block title %}Galleries for {{ day|date:"l, F jS" }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}Galleries for {{ day|date:"l, F jS" }} from the Virginia Tech Carilion Research Institute.{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list_date{% endblock %}
+
+{% block date_type %} day{% endblock %}
+
+{% block app_type %}gallery{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Galleries for {{ day|date:"l, F jS" }}</h1>
+
+	<ul>
+	{% cache 500 gallery_list_day day %}
+	{% for gallery in gallery_list %}
+		<li class="tease">
+			<h2>
+				<a href="{{ gallery.get_absolute_url }}" title="{{ gallery.title }}">
+				{% for photo in gallery.photos.all|slice:"1" %}
+					<img src="{{ photo.photo|crop:"150x150" }}" alt_text="{{ photo.alt_text }}">
+				{% endfor %}
+					{{ gallery.title }}
+				</a>
+			</h2>
+			<p class="content_meta">Created {{ gallery.created|date:"N j, Y" }} at {{ gallery.created|date:"P" }}</p>
+			<p class="summary">{{ gallery.description|truncatewords:"30" }}</p>
+		</li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+
+</div>
+{% endblock %}

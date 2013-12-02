@@ -1,0 +1,74 @@
+{% extends "base_media.html" %}
+
+{% load image_utils date categories cache %}
+
+{% block title %}Photos{{ block.super }}{% endblock %}
+
+{% block meta_description %}Photos from the Virginia Tech Carilion Research Institute.{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}photo{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Photos</h1>
+
+<ul>
+{% cache 500 photo_list page_obj %}
+{% for photo in photo_list %}
+	<li class="tease">
+		<h2>
+			<a href="{{ photo.get_absolute_url }}" title="{{ photo.title }}">
+				<img src="{{ photo.photo|crop:"150x150" }}" alt_text="{{ photo.alt_text }}">
+				{{ photo.title }}
+			</a>
+		</h2>
+		<p class="content_meta">By {% if photo.photographer %}<a href="mailto:{{ photo.photographer.email }}">{{ photo.photographer.get_full_name }}</a>{% else %}{{ photo.one_off_photographer }}{% endif %}, published {{ photo.uploaded|date:"N j, Y" }} at {{ photo.uploaded|date:"P" }}</p>
+		<p class="summary">{{ photo.caption|truncatewords:"30" }}</p>
+	</li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; Older photos</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Newer photos &raquo;</a>{% endif %}</p>
+
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<h2>Date-based archives</h2>
+
+<h3>Year</h3>
+{% get_photo_year_list as year_list %}
+<ul>
+{% cache 500 photo_list_year %}
+{% for year in year_list %}
+	<li><a href="{{ year|date:"Y"|lower }}/">{{ year|date:"Y" }}</a></li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+<h3>Month</h3>
+{% get_photo_month_list as month_list %}
+<ul>
+{% cache 500 photo_list_month %}
+{% for month in month_list %}
+	<li><a href="{{ month|date:"Y/M"|lower }}/">{{ month|date:"F Y" }}</a></li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+<h2>Photo categories</h2>
+<p>Browse photos by category:</p>
+<ul>
+{% cache 500 photo_list_categories %}
+{% get_category_list as category_list %}
+{% for category in category_list %}
+<li><a href="{{ category.get_absolute_url }}" title="{{ category.title }}">{{ category.title }}</a></li>
+{% endfor %}
+{% endcache %}
+</ul>
+{% endblock %}

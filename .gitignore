@@ -1,0 +1,7 @@
+settings.py_prod
+settings.py_dev
+search_sites.py
+*.svn
+.DS_Store
+tests.py
+*.pyc

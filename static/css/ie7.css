@@ -1,0 +1,54 @@
+/* IE7 specific styles */
+
+#navigation li {
+margin-right: 0 !important;
+}
+
+#navigation li a:link, #navigation li a:visited {
+color: #fff;
+}
+
+#navigation #nav_about .submenu {
+left: 63px !important;
+}
+
+#navigation #nav_som .submenu {
+left: 204px !important;
+}
+
+#navigation #nav_ri .submenu {
+left: 382px !important;
+}
+
+#header {
+z-index: 20;
+}
+
+#content {
+z-index: 5;
+}
+
+#giving_promo p a {
+color: #fff;
+}
+
+#content_categories {
+left: 25px;
+}
+
+#bottom_nav {
+top: 100;
+right: 15px;
+}
+
+#news_posters {
+z-index: 10;
+}
+
+#news_posters h2 {
+bottom: 75px;
+}
+
+#poster_previous, #poster_next {
+z-index: 15;
+}

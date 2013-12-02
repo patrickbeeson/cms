@@ -1,0 +1,57 @@
+{% extends "base_news.html" %}
+
+{% load generic_markup date categories image_utils cache %}
+
+{% block title %}News stories for {{ month|date:"F Y" }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}News stories for {{ month|date:"F Y" }} from the Virginia Tech Carilion Research Institute.{% endblock %}
+
+{% block view_type %}list_date{% endblock %}
+
+{% block date_type %} month{% endblock %}
+
+{% block app_type %}news{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+
+<h1>Stories for {{ month|date:"F Y" }}</h1>
+{% cache 500 story_list_day day %}
+{% regroup story_list by pub_date|date:"l \t\h\e jS" as day_list %}
+<ul>
+
+{% for day in day_list %}
+    <li>
+    	<h3 class="day_grouper">{{ day.grouper }}</h2>
+    	<ul>
+        {% for story in day.list %}
+        		{% if story.tease_photo %}
+	<li class="tease">
+		<h2>
+			<a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">
+				<img src="{{ story.tease_photo.photo|crop:"150x150" }}" alt="{{ story.tease_photo.alt_text }}">
+				{{ story.headline }}
+			</a>
+		</h2>
+		<p class="content_meta">{% comment %}By {% if story.author %}<a href="mailto:{{ story.author.email }}">{{ story.author.get_full_name }}</a>{% else %}{{ story.one_off_byline }}{% endif %}, {% endcomment %}Published {{ story.pub_date|date:"N jS" }} at {{ story.pub_date|date:"P" }}{% if story.updated %}<span class="updated">, updated {{ story.updated }}</span>{% endif %}</p>
+		<p class="summary">{{ story.summary|truncatewords:"30" }}</p>
+	</li>
+	{% else %}
+	<li class="no_tease">
+		<h2>
+			<a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">
+			{{ story.headline }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ story.pub_date|date:"N jS" }},<br>{{ story.pub_date|date:"P" }}{% if story.updated %}<span class="updated">, updated {{ story.updated }}</span>{% endif %}</p>
+	</li>
+	{% endif %}
+        {% endfor %}
+    	</ul>
+    </li>
+{% endfor %}
+
+</ul>
+{% endcache %}
+</div>
+{% endblock %}

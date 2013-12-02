@@ -1,0 +1,30 @@
+{% extends "base_categories.html" %}
+
+{% load generic_markup cache %}
+
+{% block title %}Categories{{ block.super }}{% endblock %}
+
+{% block meta_description %}All categories{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}list{% endblock %}
+
+{% block app_type %}categories{% endblock %}
+
+{% block primary_content %}
+<div id="content_list">
+	<h1>Categories</h1>
+
+	<ul>
+	{% cache 500 category_list %}
+	{% for category in category_list %}
+		<li><a href="{{ category.get_absolute_url }}" title="{{ category.title }}">{{ category.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	
+	<p id="pagination">{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">&laquo; More categories</a>{% endif %}{% if page_obj.has_previous and page_obj.has_next %} | {% endif %}{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">More categories &raquo;</a>{% endif %}</p>
+
+</div>
+{% endblock %}

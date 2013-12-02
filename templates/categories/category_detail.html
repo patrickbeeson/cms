@@ -1,0 +1,176 @@
+{% extends "base_categories.html" %}
+
+{% load generic_markup image_utils categories cache %}
+
+{% block title %}{{ category.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ category.description|striptags }}{% endblock %}
+
+{% block feeds %}<link rel="alternate" href="/feeds/categories/{{ category.slug }}"> {% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}categories{% endblock %}
+
+{% block primary_content %}
+<div id="category_{{ category.id }}" class="content_body">
+	<h1>{{ category.title }}</h1>
+
+	{{ category.description|apply_markup:"markdown" }}
+	
+	<div id="related_content">
+	{% cache 500 category_detail category.title %}
+	{% if category.live_story_set %}
+		<h3 id="stories">Stories in this category</h3>
+		<ul class="related_item_list">
+		{% for story in category.live_story_set %}
+			{% if story.tease_photo %}
+	<li class="tease">
+		<h2>
+			<a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">
+				<img src="{{ story.tease_photo.photo|crop:"150x150" }}" alt="{{ story.tease_photo.alt_text }}">
+				{{ story.headline }}
+			</a>
+		</h2>
+		<p class="content_meta">{% comment %}By {% if story.author %}<a href="mailto:{{ story.author.email }}">{{ story.author.get_full_name }}</a>{% else %}{{ story.one_off_byline }}{% endif %}, {% endcomment %}Published {{ story.pub_date|date:"N j, Y" }} at {{ story.pub_date|date:"P" }}{% if story.updated %}<span class="updated">, updated {{ story.updated }}</span>{% endif %}</p>
+		<p class="summary">{{ story.summary|truncatewords:"30" }}</p>
+	</li>
+	{% else %}
+	<li class="no_tease">
+		<h2>
+			<a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">
+			{{ story.headline }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ story.pub_date|date:"N j, Y" }},<br>{{ story.pub_date|date:"P" }}{% if story.updated %}<span class="updated">, updated {{ story.updated }}</span>{% endif %}</p>
+	</li>
+	{% endif %}
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if category.live_audio_set %}
+		<h3 id="audio">Audio in this category</h3>
+		<ul class="related_item_list">
+		{% for audio in category.live_audio_set %}
+				{% if audio.thumbnail %}
+	<li class="tease">
+		<h2>
+			<a href="{{ audio.get_absolute_url }}" title="{{ audio.title }}">
+				<img src="{{ audio.thumbnail|crop:"150x150" }}" alt_text="{{ audio.thumbnail_alt_text }}">
+				{{ audio.title }}
+			</a>
+		</h2>
+		<p class="content_meta">By {% if audio.producer %}<a href="mailto:{{ audio.producer.email }}">{{ audio.producer.get_full_name }}</a>{% else %}{{ audio.one_off_producer }}{% endif %}, published {{ audio.uploaded|date:"N j, Y" }} at {{ audio.uploaded|date:"P" }}</p>
+		<p class="summary">{{ audio.description|truncatewords:"30" }}</p>
+	</li>
+	{% else %}
+	<li class="no_tease">
+		<h2>
+			<a href="{{ audio.get_absolute_url }}" title="{{ audio.title }}">
+			{{ audio.title }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ audio.uploaded|date:"N j, Y" }},<br>{{ audio.uploaded|date:"P" }}</p>
+	</li>
+	{% endif %}
+		{% endfor %}
+		</ul>
+	{% endif %}	
+
+	{% if category.live_gallery_set %}
+		<h3 id="galleries">Galleries in this category</h3>
+		<ul class="related_item_list">
+		{% for gallery in category.live_gallery_set %}
+			<li class="tease">
+		<h2>
+			<a href="{{ gallery.get_absolute_url }}" title="{{ gallery.title }}">
+				{% for photo in gallery.photos.all|slice:"1" %}
+					<img src="{{ photo.photo|crop:"150x150" }}" alt_text="{{ photo.alt_text }}">
+				{% endfor %}
+				{{ gallery.title }}
+			</a>
+		</h2>
+		<p class="content_meta">Created {{ gallery.created|date:"N j, Y" }} at {{ gallery.created|date:"P" }}</p>
+		<p class="summary">{{ gallery.description|truncatewords:"30" }}</p>
+	</li>
+		{% endfor %}
+		</ul>
+	{% endif %}	
+
+	{% if category.live_photo_set %}
+		<h3 id="photos">Photos in this category</h3>
+		<ul class="related_item_list">
+		{% for photo in category.live_photo_set %}
+			<li class="tease">
+		<h2>
+			<a href="{{ photo.get_absolute_url }}" title="{{ photo.title }}">
+				<img src="{{ photo.photo|crop:"150x150" }}" alt_text="{{ photo.alt_text }}">
+				{{ photo.title }}
+			</a>
+		</h2>
+		<p class="content_meta">By {% if photo.photographer %}<a href="mailto:{{ photo.photographer.email }}">{{ photo.photographer.get_full_name }}</a>{% else %}{{ photo.one_off_photographer }}{% endif %}, published {{ photo.uploaded|date:"N j, Y" }} at {{ photo.uploaded|date:"P" }}</p>
+		<p class="summary">{{ photo.caption|truncatewords:"30" }}</p>
+	</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if category.live_video_set %}
+		<h3 id="video">Videos in this category</h3>
+		<ul class="related_item_list">
+		{% for video in category.live_video_set %}
+			{% if video.thumbnail %}
+	<li class="tease">
+		<h2>
+			<a href="{{ video.get_absolute_url }}" title="{{ video.title }}">
+				<img src="{{ video.thumbnail|crop:"150x150" }}" alt_text="{{ video.thumbnail_alt_text }}">
+				{{ video.title }}
+			</a>
+		</h2>
+		<p class="content_meta">By {% if video.videographer %}<a href="mailto:{{ video.videographer.email }}">{{ video.videographer.get_full_name }}</a>{% else %}{{ video.one_off_videographer }}{% endif %}, published {{ video.created|date:"N j, Y" }} at {{ audio.created|date:"P" }}</p>
+		<p class="summary">{{ video.caption|truncatewords:"30" }}</p>
+	</li>
+	{% else %}
+	<li class="no_tease">
+		<h2>
+			<a href="{{ video.get_absolute_url }}" title="{{ video.title }}">
+			{{ video.title }}
+			</a>
+		</h2>
+		<p class="content_meta">{{ video.created|date:"N j, Y" }},<br>{{ video.created|date:"P" }}</p>
+	</li>
+	{% endif %}
+		{% endfor %}
+		</ul>
+	{% endif %}
+	{% endcache %}
+	</div>
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<h2>Jump to content type</h2>
+<ul>
+	{% if category.live_story_set %}<li><a href="#stories">Stories</a></li>{% endif %}
+	{% if category.live_audio_set %}<li><a href="#audio">Audio</a></li>{% endif %}
+	{% if category.live_gallery_set %}<li><a href="#galleries">Galleries</a></li>{% endif %}
+	{% if category.live_photo_set %}<li><a href="#photos">Photos</a></li>{% endif %}
+	{% if category.live_video_set %}<li><a href="#video">Video</a></li>{% endif %}
+</ul>
+
+<h2>All categories</h2>
+<ul>
+{% cache 500 all_categories category.title %}
+{% get_category_list as category_list %}
+{% for category in category_list %}
+<li><a href="{{ category.get_absolute_url }}" title="{{ category.title }}">{{ category.title }}</a></li>
+{% endfor %}
+{% endcache %}
+</ul>
+
+<h2>RSS</h2>
+<p class="rss"><a href="/feeds/categories/{{ category.slug }}/" title="RSS feed for {{ category.title }}">Subscribe to a feed of stories for this category</a></p> 
+
+
+{% endblock %}

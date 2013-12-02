@@ -1,0 +1,152 @@
+{% extends "base_generic.html" %}
+
+{% load image_utils generic_markup cache comparison %}
+
+{% block title %}{{ block.super }}{% endblock %}
+
+	{% block google_webmaster_meta %}
+	<meta name="google-site-verification" content="GsZg_SHmscDswYusDU06LQm875JCpLUIm9gJ7KhaHBM">
+	{% endblock %}
+
+{% block meta_description %}{% endblock %}
+
+	{% block feeds %}
+	<link rel="alternate" href="/feeds/events/">
+	<link rel="alternate" href="/feeds/news/">
+	{% endblock %}
+
+	{% block js %}
+	{{ block.super }}
+	<script src="{{ STATIC_URL }}js/jquery.infinite-carousel.js"></script>
+	<script src="{{ STATIC_URL }}js/poster_functions.js"></script>
+	{% endblock %}
+
+{% block app_type %}home{% endblock %}
+
+{% block view_type %}home{% endblock %}
+
+
+{% block primary_content %}
+
+<div id="news_posters">
+{% cache 500 homepage_poster %}
+	<ul>
+	{% for posteritem in poster_list %}
+		<li>
+			<a href="{{ posteritem.link }}" title="{{ posteritem.title }}">
+				<img src="{{ posteritem.image.photo|crop:"630x306" }}" alt="{{ posteritem.image.alt_text }}">
+				<div class="poster_meta {{ posteritem.get_orientation_display|lower }}">
+					<h2>{{ posteritem.title }}</h2>
+					{% if posteritem.tease %}<h3>{{ posteritem.tease }}</h3>{% endif %}
+				</div>
+			</a>
+		</li>
+	{% endfor %}	
+	</ul>
+{% endcache %}
+</div>
+
+<div id="poster_controls">
+	<a id="poster_previous"><img src="{{ STATIC_URL }}images/prev.png" alt="previous"></a>
+	<a id="poster_next"><img src="{{ STATIC_URL }}images/next.png" alt="next"></a>
+</div>
+
+<div id="top_stories">
+
+<h3>Latest news and features</h3>
+
+<ul id="featured_stories">
+{% cache 500 homepage_top_stories %}
+{% for featuredstory in topstories_list %}
+	{% if featuredstory.story.tease_photo %}
+	<li class="tease">
+		<a href="{{ featuredstory.story.get_absolute_url }}" title="{{ featuredstory.story.headline }}">
+			<img src="{{ featuredstory.story.tease_photo.photo|crop:"100x100" }}" alt="{{ featuredstory.story.tease_photo.alt_text }}">
+			<h2>{{ featuredstory.story.headline }}</h2>
+		</a>
+		<p class="story_meta">{% comment %}By {% if featuredstory.story.author %}<a href="mailto:{{ featuredstory.story.author.email }}">{{ featuredstory.story.author.get_full_name }}</a>{% else %}{{ featuredstory.story.one_off_byline }}{% endif %}, {% endcomment %}Published {{ featuredstory.story.pub_date|date:"N jS" }} at {{ featuredstory.story.pub_date|date:"P" }}{% if featuredstory.story.updated %}<span class="updated">, updated {{ featuredstory.story.updated }}</span>{% endif %}</p>
+		<p class="summary">{{ featuredstory.story.summary }}</p>
+	</li>
+	{% else %}
+	<li class="no_tease">
+		<a href="{{ featuredstory.story.get_absolute_url }}" title="{{ featuredstory.story.headline }}">
+			<h2>{{ featuredstory.story.headline }}</h2>
+		</a>
+		<p class="story_meta">{{ featuredstory.story.pub_date|date:"N jS" }},<br>{{ featuredstory.story.pub_date|date:"P" }}{% if featuredstory.story.updated %}<span class="updated">, updated {{ featuredstory.story.updated }}</span>{% endif %}</p>
+	</li>
+	{% endif %}
+{% endfor %}
+{% endcache %}
+</ul>
+
+<p id="more_stories"><a href="/news/">&laquo; More news</a></p>
+
+</div>
+
+<div id="featured_items">
+
+<h3>Featured content</h3>
+
+{% include "includes/featured_content.html" %}
+
+</div>
+
+{% comment %}
+<div id="promotions">
+{% include "includes/homepage_promotions.html" %}
+</div>
+{% endcomment %}
+
+{% endblock %}
+
+{% block secondary_content %}
+<div id="welcome_message">
+	<h2>Welcome to the VTCRI</h2>
+	
+	<div id="welcome_image">
+		<img src="{{ STATIC_URL }}images/.jpg" alt="">
+		<p></p>
+	</div>
+
+	<p></p>
+	
+	<p><a href="/about/welcome/">Read more</a> from Executive Director <a href="/employees//"></a>, and learn about <a href="/employees/faculty/">our faculty</a>, <a href="/about/distinguished-visiting-scholars-series/">Distinguished Visiting Scholars Series</a> and <a href="/jobs/">job openings</a>.</p>
+</div>
+
+{% if event_list %}
+<div id="upcoming_events">
+	<h2>Upcoming events</h2>
+<ul>
+{% cache 500 homepage_latest_events %}
+{% for event in event_list|slice:"5" %}
+	<li>
+		{% if event.show_webcast %}<span class="live_webcast">Live webcast now!</span>{% endif %}
+		<h3><a href="{{ event.get_absolute_url }}" title="{{ event.name }}">{{ event.name }}</a></h3>
+		<p class="event_meta">{{ event.event_date|date:"N j" }} at {{ event.start_time }} at {{ event.location }} -- Speaker: {{ event.speaker }}</p>
+	</li>	
+{% endfor %}
+{% endcache %}
+</ul>
+	{% if_greater event_list.count 5 %}
+	<p style="padding-left: 0px;"><a href="/events/">&laquo; View more upcoming events</a></p>
+	{% endif_greater %}
+</div>
+{% endif %}
+
+<div id="recent_press">
+	<h2>Recent press</h2>
+	<ul>
+	{% cache 500 homepage_press_mentions %}
+	{% for mention in press_list %}
+		<li>{{ mention.source_name }} ({{ mention.pub_date }}): <a href="{{ mention.URL }}" title="{{ mention.title }}">{{ mention.title }}</a></li>
+	{% endfor %}
+	{% endcache %}
+	</ul>
+	<p><a href="/press">&laquo; View more press mentions</a></p>
+</div>
+
+<h2>RSS</h2>
+<p class="rss"><a href="/feeds/news/">Subscribe to the news feed</a></p> 
+<p class="rss"><a href="/feeds/events/">Subscribe to the upcoming events feed</a></p> 
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base_flatpages.html" %}
+
+{% load generic_markup %}
+
+{% block title %}{{ flatpage.title }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ flatpage.title }}{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}flatpages{% endblock %}
+
+{% block primary_content %}
+<h1>{{ flatpage.title }}</h1>
+
+<div id="content_body">
+	{{ flatpage.content|apply_markup:"markdown" }}
+</div>
+{% endblock %}
+
+{% block secondary_content %}
+<h2>Mission statement</h2>
+<p></p>
+
+<p>Read about the <a href="/about/vision-governance/" title="vision and governance">vision and governance</a>.</p>
+
+{% endblock %}

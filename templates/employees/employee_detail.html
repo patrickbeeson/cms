@@ -1,0 +1,128 @@
+{% extends "base_employees.html" %}
+
+{% load tagging_tags generic_markup image_utils truncate cache comparison %}
+
+{% block title %}{{ employee.first_name }} {{ employee.last_name }}{{ block.super }}{% endblock %}
+
+{% block meta_description %}{{ employee.job_description|striptags }}{% endblock %}
+
+{% block feeds %}{% endblock %}
+
+{% block view_type %}detail{% endblock %}
+
+{% block app_type %}employees{% endblock %}
+
+{% block prevent_indexing %}
+{% if not employee.is_currently_employed %}
+<meta name="robots" content="noindex">
+{% endif %}
+{% endblock %}
+
+{% block primary_content %}
+
+<div id="employee_{{ employee.id }}" class="content_body">
+
+	{% if not employee.is_currently_employed %}
+	<p id="alert_flag">This employee is no longer with the Institute.</p>
+	{% endif %}
+	
+	<h1>{{ employee.first_name }} {{ employee.last_name }}</h1>
+
+	{% if employee.photo %}<img src="{{ employee.photo|crop:"150x150" }}" alt="{{ employee.first_name }} {{ employee.last_name }}">{% endif %}
+	
+	<h2>{{ employee.title }}</h2>
+	
+	{% if employee.job_description %}	
+	<h3>Description of work</h3>
+	
+	{{ employee.job_description_html|safe }}
+
+	{% endif %}
+
+	{% if employee.previous_position %}
+	<h3>Previous position</h3>
+	<p>{{ employee.previous_position }}</p>
+	{% endif %}
+	
+	{% if employee.education_set.count %}
+	<h3>Education</h3>	
+	
+	<ul id="degrees">
+	{% for education in employee.education_set.all %}
+		<li><b>{{ education.school }}</b>: {{ education.get_degree_type_display }}{% if education.field_of_study %}, {{ education.field_of_study }}{% endif %}</li>
+	{% endfor %}
+	</ul>
+	
+	{% endif %}
+	
+	{% if employee.related_links.count %}
+	
+	<h3>Related links</h3>
+	
+	<ul id="related_links">
+	{% for related_link in employee.related_links.all %}
+		<li><a href="{{ related_link.url }}" title="{{ related_link.title }}">{{ related_link.title }}</a></li>
+	{% endfor %}
+	</ul>
+		
+	{% endif %}
+	
+	{% if featuredpublication_list %}
+	<h3>Selected publications</h3>
+	<ul id="selected_publications">
+	{% for publication in featuredpublication_list|dictsortreversed:"journal_pub_date" %}
+	{% ifequal publication.publication_type 1 %}
+		<li>{{ publication.authors }}. ({{ publication.journal_pub_date|date:"Y" }}). {% if publication.external_link %}<a href="{{ publication.external_link }}">{{ publication.article_title }}</a>{% else %}{{ publication.article_title }}{% endif %}. In {{ publication.editors }}(Eds.). {{ publication.journal_name }}. {% if publication.journal_volume %}Vol. {{ publication.journal_volume }}{% endif %} {% if publication.journal_page_range %}(pp. {{ publication.journal_page_range }}){% endif %} {{ publication.location_of_publication }}: {{ publication.publisher }}. {% if publication.downloadable_version %}<a href="{{ STATIC_URL }}{{ publication.downloadable_version.document }}">Download this chapter</a>{% endif %}</li>
+	{% else %}
+		<li>{{ publication.authors }}. ({{ publication.journal_pub_date|date:"Y" }}). <a href="{{ publication.external_link }}">{{ publication.article_title }}</a>. {{ publication.journal_name }}{% if publication.journal_volume %}, {{ publication.journal_volume }}{% endif %}{% if publication.journal_issue %}({{ publication.journal_issue }}){% endif %}{% if publication.journal_page_range %}:{{ publication.journal_page_range }}{% endif %}. {% if publication.downloadable_version %}<a href="{{ STATIC_URL }}{{ publication.downloadable_version.document }}">Download this article</a>{% endif %}</li>
+	{% endifequal %}
+	{% endfor %}
+	</ul>
+	
+	{% if_greater employee.publication_set.count 5 %}
+	<p><a href="/employees/{{ employee.slug }}/publications/" title="Publications for {{ employee.first_name }} {{ employee.last_name }}">&laquo; View more publications for {{ employee.first_name }} {{ employee.last_name }}</a></p>
+	{% endif_greater %}
+	{% endif %}
+	
+	{% if employee.resume_or_cv %}
+	<h3>{% ifequal employee.employee_type 2 %}Resume{% else %}Curriculum vitae{% endifequal %}</h3>
+	<p>Download {{ employee.first_name }} {{ employee.last_name }}'s <a href="{{ STATIC_URL }}{{ employee.resume_or_cv.document }}">{% ifequal employee.employee_type 2 %}resume{% else %}CV{% endifequal %}</a>.</p>
+	{% endif %}
+</div>
+
+{% endblock %}
+
+{% block secondary_content %}
+<div id="employee_contact">
+	<h2>Contact {{ employee.first_name }} {{ employee.last_name }}</h2>
+	<ul>
+		{% if employee.office_phone_number %}<li><b>Office:</b> {{ employee.office_phone_number|phone2numeric }}</li>{% endif %}
+		{% if employee.mobile_phone_number %}<li><b>Mobile:</b> {{ employee.mobile_phone_number|phone2numeric }}</li>{% endif %}
+		{% if employee.office %}<li><b>Office number:</b> {{ employee.office }}</li>{% endif %}
+		{% if employee.email %}<li><b>Email address:</b> {{ employee.email }}</li>{% endif %}
+		{% if employee.website %}<li><b>Website:</b> <a href="{{ employee.website }}">Visit {{ employee.first_name }} {{ employee.last_name }}'s website</a></li>{% endif %}
+	</ul>
+</div>
+
+<div id="related_content">
+	{% if employee.get_stories_for_faculty.count %}
+	<h2>Recent stor{{ employee.get_stories_for_faculty.count|pluralize:"y,ies" }} mentioning {{ employee.first_name }} {{ employee.last_name }}</h2>
+		<ul id="related_stories">
+		{% for story in employee.get_stories_for_faculty|slice:"5" %}
+			<li><a href="{{ story.get_absolute_url }}" title="{{ story.headline }}">{{ story.headline }}</a></li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if employee.mention_set.count %}
+	<h2>Recent press</h2>
+	<ul>
+	{% for mention in employee.mention_set.all|slice:"5" %}
+		<li>{{ mention.source_name }} ({{ mention.pub_date }}): <a href="{{ mention.URL }}" title="{{ mention.title }}">{{ mention.title }}</a></li>
+	{% endfor %}
+	</ul>
+	<p><a href="/employees/{{ employee.slug }}/press/" title="Press for {{ employee.first_name }} {{ employee.last_name }}">&laquo; View more press for {{ employee.first_name }} {{ employee.last_name }}</a></p>
+	{% endif %}
+</div>
+
+{% endblock %}
