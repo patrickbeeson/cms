@@ -1,11 +1,11 @@
 cms
 ===
 
-This is a content management system (CMS) I built as webmaster for the <a href="http://research.vtc.vt.edu/">Virginia Tech Carilion Research Institute</a>.
+This repository contains the Django project and applications that comprise the content management system built for the <a href="http://research.vtc.vt.edu/">Virginia Tech Carilion Research Institute</a>.
 
-I used Django 1.3, PostgreSQL and Apache.
+High-level technologies include: Django 1.3, PostgreSQL and Apache.
 
-VTCRI references have largely been removed, which accounts for holes in links, content and other areas.
+VTCRI references have largely been removed.
 
 **Dependencies and Python modules used for this project**
 * markdown: https://pypi.python.org/pypi/Markdown
