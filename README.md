@@ -1,4 +1,4 @@
-cms
+vtcri-cms
 ===
 
 This repository contains the Django project and applications that comprise the content management system built for the <a href="http://research.vtc.vt.edu/">Virginia Tech Carilion Research Institute</a>.
